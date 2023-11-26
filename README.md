@@ -1,8 +1,3 @@
----
-editor_options: 
-  markdown: 
-    wrap: 72
----
 
 # D-Lab Data Wrangling Workshop
 
@@ -112,7 +107,7 @@ Check out the following resources to learn more about data wrangling in
 R:
 
 -   [R for Data Science](https://r4ds.hadley.nz/): *A comprehensive
-    online textbook by Hadley Wickham, who helped developed `tidyverse`*
+    online textbook by Hadley Wickham, who helped develope `tidyverse`*
 -   [Resource2](LinkToResource2): *Explain Resource 2*
 -   [...]
 
