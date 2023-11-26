@@ -1,0 +1,190 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+# D-Lab: R Data Wrangling - Part 2
+
+*want to have a more compelling answer to why the messy dataset can't be easily used to answer the same question as opposed to just saying "well R isn't good at doing column-wise operations and therefore it needs to be in tidy form"*
+
+*Want to use chatGPT to do some de-bugging here - also use it for my own benefit to clarify concepts or ask why it's good to do these things*
+
+## Learning Objectives
+
+Welcome to Part 2 of R Data Wrangling. Our learning objectives for this two part workshop are:
+
+1.  Learn the `tidyverse` functions for **transforming** your data to be used for visualization and analysis
+
+2.  Identify how an "untidy" dataframes gets in the way of data visualization and analysis
+
+3.  Learn the `tidyverse` functions used to **wrangle** a dataframe into "tidy" form
+
+Always remember the [D-Lab](https://dlab.berkeley.edu/home) moto: It's Okay Not to Know!
+
+Throughout this workshop series, we will use the following icons:
+
+*There are too many icons, do I even use all of them?*
+
+🔔 **Question**: A quick question to help you understand what's going on.
+
+🥊 **Challenge**: Interactive exercise. We'll go through these in the workshop!
+
+⚠️ **Warning**: Heads-up about tricky stuff or common mistakes.
+
+💡 **Tip**: How to do something a bit more efficiently or effectively.
+
+📝 **Poll**: A zoom poll to help you learn.
+
+🎬 **Demo**: Showing off something more advanced so you know what you can use R for in the future.
+
+🤖 **chatGPT**: Helps you use chatGPT to improve your code and understanding.
+
+## Part 1 recap - transforming data
+
+In Part 1, we focused on learning objective #1: transforming our data to answer questions about the data. We used the following functions from the `tidyverse` package:
+
+-   `select()`: pick specific variables (columns)
+-   `filter()`: pick specific observations (rows) based on certain conditions
+-   `mutate()`: create new variables (columns)
+-   `factor()`: turn a categorical variable from a numeric or string into a factor
+-   `group_by()`: group observations (rows) based on a variable (columns)
+-   `summarize()`: performs an operation on all the grouped observations
+-   `arrange()`: reorder observations (rows) based on a variable
+
+### 🥊 Challenge 1: Using `tidyverse` functions on tidy data
+
+We will start with the same data from Part 1. This is from the American Community Survey and asks people (the observations) information on their job, income and demographics (the variables).
+
+```{r}
+d <- read.csv("../data/part1_data.csv")
+head(d)
+```
+
+Calculate the average income (variable = `income`) for women (`sex`) by racial group (`race`). Which group has the highest average income? Which has the lowest? Use the following functions: `filter()`, `group_by()`, `summarize()`, and `arrange()`.
+
+Hint: this was the first question we asked in Part 1 - you can always look back at that code 😃
+
+```{r}
+
+
+
+
+```
+
+## Messy Data
+
+Having our data in tidy form made it easy to answer the question above about average income. In the real world, data often comes to us in different formats. For example, here is the same data but presented differently.
+
+```{r}
+d_messy_ex1 <- read_csv("../data/data_messy_ex1.csv", show_col_types = F)
+View(d_messy_ex1)
+```
+
+🔔 What is different about this dataset? Is there one row per observation and one column per variable? If not, how would you describe it?
+
+*Answer: there are multiple observations per row, violating the tidy rule that there should be one observation per row*
+
+Having data in non-tidy form makes analysis and data visualization harder. Lets say we want to ask the same question, what is the average income by racial group for women? Our first step was subsetting to only women. Let's try doing this for the messy data using `filter()`.
+
+**📝 Poll R-Data 2-1:** Which of these lines of code would filter `d_messy` to only women? Answer in the zoom poll. You can try them out in R.
+
+```{r}
+# try out the code from the poll - what is the problem with the returned data?
+
+# option 1
+d_messy_ex1 |>
+  filter(sex_person1 == 2)
+
+# option 2
+d_messy_ex1 |>
+  filter(sex_person1 == 2 | sex_person2 == 2 | sex_person3 == 2 | sex_person4 == 2)
+
+# option 3
+d_messy_ex1 |>
+  filter(sex_person1 == 2 & sex_person2 == 2 & sex_person3 == 2 & sex_person4 == 2)
+
+# option 4
+# can't be done with filter() 
+```
+
+Even asking a simple question like, how many women are in our dataframe, becomes tricky when the data are not in tidy form. In this part of the workshop, we will learn different functions for transforming our data into tidy form.
+
+### 🎬 Demo: Wrangling messy data
+
+Returning to our original question, what is the average income by racial group for women, we need an additional first step to answer it: **data wrangling**. This means transforming our data from a messy format to a tidy format. By the end of today's workshop, you will be able to do this!
+
+```{r}
+d_tidy <- d_messy_ex1 |>
+  # wrangle the data into format of one person per row and one variable per column
+  pivot_longer(cols = c(sex_person1:income_person4),
+               names_to = c(".value", "person"),
+               names_sep = "_person",
+               values_drop_na = TRUE) |>
+  mutate(person = as.numeric(person)) |>
+  arrange(family_ID, person)
+
+# check how our new data looks
+View(d_tidy)
+
+# use the tidy data to answer the original question in the same way as in challenge #1 
+d_tidy |>
+  # subset to only women 
+  filter(sex == 2) |>
+  # split the data into racial groups
+  group_by(race) |>
+  # calculate the average income by group
+  summarize(avg_income = mean(income, na.rm = T)) |>
+  # sort by average income in descending order
+  arrange(desc(avg_income))
+               
+```
+
+### Game Plan
+
+> \"Tidy datasets are all alike, but every messy dataset is messy in its own way.\"\
+> --- Hadley Wickham (and Leo Tolstoy)
+
+Not all messy data is messy for the same reason. For example, `d_messy` is messy because each row contains multiple observations (people).
+
+```{r}
+View(d_messy_ex1)
+```
+
+🔔 Looking at another dataframe that contains the same information, why is this one messy?
+
+```{r}
+d_messy_ex2 <- read.csv("../data/data_messy_ex2.csv")
+View(d_messy_ex2)
+```
+
+Because datasets can be messy in different ways, we will need multiple approaches to wrangling them into tidy form. Each time we see a new messy dataset in this workshop (and beyond!), we will ask three questions:
+
+1.  Why is the dataset not tidy? Is there one observation per row? Is there one variable per column?
+
+2.  What would the tidy version of this dataset look like? What would the rows be? What would the columns be?
+
+    💡 It often helps to draw what the tidy dataset would look like on paper.
+
+3.  What function(s) will wrangle the data into tidy form?
+
+We can answer questions 1 and 2 now for most datasets. Question 3 we will be able to answer at the end of this workshop.
+
+*Do I need this disclaimer below?*
+
+⚠️ While the tidy data framework is helpful it is not always the case that you will want your data in this format. Always ask yourself, **what format can I wrangle my data into that makes it most easy to answer the questions I am asking?** Overtime you will build an intuition for this. For starters, we will use the tidy data framework as our goal.
+
+## Lengthening Data
+
+Two common tools for tidying data are **lengthening** and **widening** data. We will start with lengthening, which means increasing the number of rows and/or decreasing the number of columns. If the answer to question 1 is, there are multiple observations per row, or, columns names contain information other than variable names, then we probably need to lengthen our data.
+
+### Problem: Data in column names 
+
+###  
+
+ - needed when columns contain information in them that isn't a variable name, as with `d_messy_ex1`
+
+1.  widening data - decreasing the number of rows and/or increasing the number of columns - needed when columns contain multiple variables and/or when observations are spread across multiples rows, as with `d_messy_ex2`
+
+*Do we need to understand this more?*
+
+## Break Time ☕
