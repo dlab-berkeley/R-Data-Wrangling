@@ -15,7 +15,7 @@ Welcome to Part 1 of R Data Wrangling. Our learning objectives for this two part
 
 1.  Learn the `tidyverse` functions for **transforming** your data to be used for visualization and analysis
 
-2.  Identify how an "untidy" dataframes gets in the way of data visualization and analysis
+2.  Identify how an "untidy" dataframe gets in the way of data visualization and analysis
 
 3.  Learn the `tidyverse` functions used to **wrangle** a dataframe into "tidy" form
 
