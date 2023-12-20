@@ -5,10 +5,6 @@ output: html_notebook
 
 # D-Lab: R Data Wrangling - Part 2
 
-*want to have a more compelling answer to why the messy dataset can't be easily used to answer the same question as opposed to just saying "well R isn't good at doing column-wise operations and therefore it needs to be in tidy form"*
-
-*Want to use chatGPT to do some de-bugging here - also use it for my own benefit to clarify concepts or ask why it's good to do these things*
-
 ## Learning Objectives
 
 Welcome to Part 2 of R Data Wrangling. Our learning objectives for this two part workshop are:
@@ -23,8 +19,6 @@ Always remember the [D-Lab](https://dlab.berkeley.edu/home) moto: It's Okay Not 
 
 Throughout this workshop series, we will use the following icons:
 
-*There are too many icons, do I even use all of them?*
-
 🔔 **Question**: A quick question to help you understand what's going on.
 
 🥊 **Challenge**: Interactive exercise. We'll go through these in the workshop!
@@ -37,124 +31,98 @@ Throughout this workshop series, we will use the following icons:
 
 🎬 **Demo**: Showing off something more advanced so you know what you can use R for in the future.
 
-🤖 **chatGPT**: Helps you use chatGPT to improve your code and understanding.
+# Part 1 recap - transforming data
 
-## Part 1 recap - transforming data
+In Part 1, we focused on learning objective #1: transforming our data to answer questions about the data. We used multiple functions from the `tidyverse` package such as `group_by()`, `mutate()`, and `summarize()`.
 
-In Part 1, we focused on learning objective #1: transforming our data to answer questions about the data. We used the following functions from the `tidyverse` package:
+💡 **Tip**: Refer back to the Part 1 notebook to see examples of these functions.
 
--   `select()`: pick specific variables (columns)
--   `filter()`: pick specific observations (rows) based on certain conditions
--   `mutate()`: create new variables (columns)
--   `factor()`: turn a categorical variable from a numeric or string into a factor
--   `group_by()`: group observations (rows) based on a variable (columns)
--   `summarize()`: performs an operation on all the grouped observations
--   `arrange()`: reorder observations (rows) based on a variable
-
-### 🥊 Challenge 1: Using `tidyverse` functions on tidy data
-
-We will start with the same data from Part 1. This is from the American Community Survey and asks people (the observations) information on their job, income and demographics (the variables).
+Let's read in the data that we created at the end of Part 1. We aggregated person level data from the American Community Survey to the state and worker type level. For each state (`stname`) and type of worker (`worker_type`) we have the number of people (`pop`), the average income (`income`), and the share with a college degree (`college`).
 
 ```{r}
-d <- read.csv("../data/part1_data.csv")
+# load in tidyverse
+library(tidyverse)
+
+d <- readRDS("../data/part2_data.rds")
 head(d)
+
 ```
 
-Calculate the average income (variable = `income`) for women (`sex`) by racial group (`race`). Which group has the highest average income? Which has the lowest? Use the following functions: `filter()`, `group_by()`, `summarize()`, and `arrange()`.
+📝 **Poll** **R-Data 2-1:** What makes this data tidy? Answer in the poll by selecting all statements that apply.
 
-Hint: this was the first question we asked in Part 1 - you can always look back at that code 😃
+## 🥊 Challenge 1: Using `tidyverse` functions on tidy data
+
+Which state has the largest share of essential workers (`worker_type` == "essential")? Use the following functions we learned in Part 1: `group_by()`, `mutate()`, `filter()` and `arrange()`.
+
+💡 **Tip**: Before starting to code, write down what additional variable(s) you will need to create and how you will create them.
 
 ```{r}
 
 
 
-
 ```
 
-## Messy Data
+# Messy Data
 
-Having our data in tidy form made it easy to answer the question above about average income. In the real world, data often comes to us in different formats. For example, here is the same data but presented differently.
+Having our data in tidy form made it possible to answer the question above about share of workers because we could apply to functions `mutate()` and `group_by()` without changing anything about our data.
+
+But data often comes to us in different formats. This could be because it has been gathered in a specific way or because it is more readable to present it in non-tidy form. For example, here is the same data but presented differently.
 
 ```{r}
-d_messy_ex1 <- read_csv("../data/data_messy_ex1.csv", show_col_types = F)
-View(d_messy_ex1)
+d_ex1 <- readRDS("../data/part2_data_wide_1.rds")
+head(d_ex1)
 ```
 
-🔔 What is different about this dataset? Is there one row per observation and one column per variable? If not, how would you describe it?
+🔔 **Question**: What is different about this dataset? Is there one row per observation and one column per variable? If not, how would you describe it?
 
-*Answer: there are multiple observations per row, violating the tidy rule that there should be one observation per row*
+Having data in non-tidy form makes analysis and data visualization harder. Lets say we want to ask the same question, which state has the largest share of essential workers? First, we need to calculate the total state population.
 
-Having data in non-tidy form makes analysis and data visualization harder. Lets say we want to ask the same question, what is the average income by racial group for women? Our first step was subsetting to only women. Let's try doing this for the messy data using `filter()`.
+🔔 **Question**: Can you think of a way to use the `tidyverse` functions to get the total state population? If not, can you explain in words what you would try to do to get the state population?
 
-**📝 Poll R-Data 2-1:** Which of these lines of code would filter `d_messy` to only women? Answer in the zoom poll. You can try them out in R.
+Asking questions of our data becomes tricky when the data is not in tidy form. In this part of the workshop, we will learn different functions for transforming our data into tidy form.
 
-```{r}
-# try out the code from the poll - what is the problem with the returned data?
+## 🎬 Demo: Wrangling messy data
 
-# option 1
-d_messy_ex1 |>
-  filter(sex_person1 == 2)
-
-# option 2
-d_messy_ex1 |>
-  filter(sex_person1 == 2 | sex_person2 == 2 | sex_person3 == 2 | sex_person4 == 2)
-
-# option 3
-d_messy_ex1 |>
-  filter(sex_person1 == 2 & sex_person2 == 2 & sex_person3 == 2 & sex_person4 == 2)
-
-# option 4
-# can't be done with filter() 
-```
-
-Even asking a simple question like, how many women are in our dataframe, becomes tricky when the data are not in tidy form. In this part of the workshop, we will learn different functions for transforming our data into tidy form.
-
-### 🎬 Demo: Wrangling messy data
-
-Returning to our original question, what is the average income by racial group for women, we need an additional first step to answer it: **data wrangling**. This means transforming our data from a messy format to a tidy format. By the end of today's workshop, you will be able to do this!
+In order to answer the question, which state has the largest share of essential workers, we need an additional first step: **data wrangling**. This means transforming our data from a messy format to a tidy format. By the end of today's workshop, you will be able to do this!
 
 ```{r}
-d_tidy <- d_messy_ex1 |>
+d_tidy <- d_ex1 |>
   # wrangle the data into format of one person per row and one variable per column
-  pivot_longer(cols = c(sex_person1:income_person4),
-               names_to = c(".value", "person"),
-               names_sep = "_person",
-               values_drop_na = TRUE) |>
-  mutate(person = as.numeric(person)) |>
-  arrange(family_ID, person)
+  pivot_longer(cols = c(Alabama:Wyoming),
+               names_to = "stname",
+               values_to = "pop") |>
+  select(stname, worker_type, pop) |>
+  arrange(stname, worker_type)
 
 # check how our new data looks
-View(d_tidy)
+head(d_tidy)
 
 # use the tidy data to answer the original question in the same way as in challenge #1 
 d_tidy |>
-  # subset to only women 
-  filter(sex == 2) |>
-  # split the data into racial groups
-  group_by(race) |>
-  # calculate the average income by group
-  summarize(avg_income = mean(income, na.rm = T)) |>
-  # sort by average income in descending order
-  arrange(desc(avg_income))
+  group_by(stname) |>
+  mutate(state_pop = sum(pop),
+         pct_worker_type = pop/state_pop) |>
+  filter(worker_type == "essential") |>
+  arrange(pct_worker_type)
                
 ```
 
-### Game Plan
+## Game Plan
 
-> \"Tidy datasets are all alike, but every messy dataset is messy in its own way.\"\
+> "Tidy datasets are all alike, but every messy dataset is messy in its own way."\
 > --- Hadley Wickham (and Leo Tolstoy)
 
-Not all messy data is messy for the same reason. For example, `d_messy` is messy because each row contains multiple observations (people).
+Not all messy data is messy for the same reason. For example, `d_ex1` is messy because not every observation is a row and because we have column names that contain variable values.
 
 ```{r}
-View(d_messy_ex1)
+head(d_ex1)
 ```
 
-🔔 Looking at another dataframe that contains the same information, why is this one messy?
+🔔 **Question**: Looking at another dataframe that contains the same information, why is this one messy?
 
 ```{r}
-d_messy_ex2 <- read.csv("../data/data_messy_ex2.csv")
-View(d_messy_ex2)
+d_ex2 <- readRDS("../data/part2_data_wide_2.rds")
+head(d_ex2)
 ```
 
 Because datasets can be messy in different ways, we will need multiple approaches to wrangling them into tidy form. Each time we see a new messy dataset in this workshop (and beyond!), we will ask three questions:
@@ -163,28 +131,266 @@ Because datasets can be messy in different ways, we will need multiple approache
 
 2.  What would the tidy version of this dataset look like? What would the rows be? What would the columns be?
 
-    💡 It often helps to draw what the tidy dataset would look like on paper.
+    **💡 Tip:** It often helps to draw what the tidy dataset would look like on paper.
 
 3.  What function(s) will wrangle the data into tidy form?
 
 We can answer questions 1 and 2 now for most datasets. Question 3 we will be able to answer at the end of this workshop.
 
-*Do I need this disclaimer below?*
+# Lengthening Data
 
-⚠️ While the tidy data framework is helpful it is not always the case that you will want your data in this format. Always ask yourself, **what format can I wrangle my data into that makes it most easy to answer the questions I am asking?** Overtime you will build an intuition for this. For starters, we will use the tidy data framework as our goal.
+Two common tools for tidying data are **lengthening** and **widening** data. Together they are referred to as **reshaping** data. We will start with lengthening, which means increasing the number of rows and/or decreasing the number of columns. If the answer to question 1 is, there are multiple observations per row, or, columns names contain information other than variable names, then we probably need to lengthen our data.
 
-## Lengthening Data
+**⚠️ Warning:** Throughout the examples we will refer to the messy dataframe we start with as the **original** data and the tidy dataframe we are getting to as the **reshaped** data. This is to be consistent with the language you will see in help files or online.
 
-Two common tools for tidying data are **lengthening** and **widening** data. We will start with lengthening, which means increasing the number of rows and/or decreasing the number of columns. If the answer to question 1 is, there are multiple observations per row, or, columns names contain information other than variable names, then we probably need to lengthen our data.
+## 1. Data in column names
 
-### Problem: Data in column names 
+```{r}
+head(d_ex1)
+```
 
-###  
+Looking at our original dataset, we can be more specific about the problems:
 
- - needed when columns contain information in them that isn't a variable name, as with `d_messy_ex1`
+-   the column **names** are one variable: `state`
 
-1.  widening data - decreasing the number of rows and/or increasing the number of columns - needed when columns contain multiple variables and/or when observations are spread across multiples rows, as with `d_messy_ex2`
+-   the column **values** are another variable: `population`
 
-*Do we need to understand this more?*
+Goal: make each of the two variables (`state` and `population`) there own columns.
 
-## Break Time ☕
+💡 **Tip**: We've answered the first two questions. At this point, it is helpful to sketch out what your reshaped data will look like with each of the column names.
+
+We will now create the reshaped dataframe by using the function `pivot_longer()`. We can generally think of `pivot_longer()` as taking multiple columns in our original dataset and condensing or "gathering" them into two new columns: one containing the **names** of the original columns and one containing the **values** of the original columns. `pivot_longer()` has three arguments that are most commonly used:
+
+1.  `cols`: the columns in our original dataframe that we want to gather into two new columns
+2.  `names_to`: the name of the **new** column that will have the column **names** of the columns in `cols`
+3.  `values_to`: the name of the **new** column that will have the column **values** of the columns in `cols`
+
+📝 **Poll** **R-Data 2-2:** Looking at our dataset `d_ex1`, which columns should we provide to the `cols` argument inside `pivot_longer()`? Answer in the poll.
+
+```{r}
+
+d_tidy1 <- d_ex1 |>
+  pivot_longer(cols = Alabama:Wyoming, #NB: you can use any tidyselect functions rather than typing out all the column names
+               names_to = "state_name", #NB: this needs to be a string b/c it is a new column
+               values_to = "pop") 
+
+head(d_tidy1, n = 20)
+
+```
+
+Lets walk through what just happened. We kept the `worker_type` column because this wasn't included in the `cols` argument.
+
+![](images/pivot_longer_1-03.jpg)
+
+The column **names** from our original dataframe became the **values** of a new column created by the `names_to` argument that we called "state".
+
+![](images/pivot_longer_2.jpg)
+
+The column **values** from our original dataframe became the **values** of a new column created by the `values_to` argument that we called "pop".
+
+![](images/pivot_longer_3.jpg)
+
+💡 **Tip**: A good way to check if `pivot_longer()` has worked the way we wanted it to is to compare the number of rows in the original dataframe to the number of rows in the reshaped dataframe.
+
+```{r}
+# number of rows and columns before the pivot
+dim(d_ex1)
+```
+
+```{r}
+# number of rows and columns after the pivot
+dim(d_tidy1)
+```
+
+🔔 **Question**: Why do we now have 153 rows and 3 columns, whereas before we had 3 rows and 52 columns?
+
+## 🥊 Challenge 2: pivot_longer()
+
+`d_ex2` is messy in a similar way to `d_ex1`. Answer the three questions about `d_ex2`:
+
+1.  Why is the dataset not tidy? Is there one observation per row? Is there one variable per column?
+
+2.  What would the tidy version of this dataset look like? What would the rows be? What would the columns be?
+
+3.  What function(s) will wrangle the data into tidy form?
+
+Now use `pivot_longer()` to wrangle `d_ex2` into tidy form. Check the pivot has worked as expected by looking at the number of rows and columns before and after.
+
+💡 **Tip**: the reshaped dataframe should be identical to `d_tidy1`.
+
+```{r}
+
+# fill in your code for pivoting d_ex2 into tidy form 
+d_tidy2 <- d_ex2 |>
+  # YOUR CODE HERE
+
+```
+
+# Break Time ☕
+
+## 2. Multiple types of data in column names
+
+In the first two examples, the original dateframes had column names that contained **values** from a variable (state names in one and different types of workers in the other). In the next example, our column names contain **values** from *multiple* variables.
+
+```{r}
+
+d_ex3 <- readRDS("../data/part2_data_wide_3.rds")
+head(d_ex3)
+
+```
+
+📝 **Poll R-Data 2-3**: Which statements explain why `d_ex3` isn't in tidy form? Select all that apply in the poll.
+
+🔔 **Question**: What should the tidy version of this look like? What are each of the variables?
+
+Having answered questions 1 and 2, we now address question 3: what function will wrangle the data into tidy form? Because we are adding rows and removing columns, we will use `pivot_longer()`.
+
+In the example above, we wanted to gather our columns into **two** new variables: one for the column names and one for the column values. Now that the column names contained values from multiple variables, we want to create **three** new variables: **two** for the column names (`worker_type` and `education`) and one for the column values (`pop`).
+
+```{r}
+
+# pipe the data into pivot_longer()
+d_tidy3 <- d_ex3 |>
+  # we want to pivot all columns *except* stname so we can use the - to unselect this one
+  pivot_longer(cols = -stname, 
+               # these are the new variables that we create from the old column names
+               names_to = c("worker_type", "education"), 
+               # b/c there are multiple variables in the column names, we need to tell R how to distinguish between them
+               names_sep = "_", 
+               # this is the new variable that will store the cell values
+               values_to = "pop") 
+
+```
+
+The column **names** from our original dataframe became the **values** of a **two** new column created by the `names_to` argument that we called "worker_type" and "education".
+
+![](images/pivot_longer_4.jpg)
+
+🔔 **Question**: How did R know which part of the column names from the original dataframe to put in the `worker_type` variable and which part to put in the `education` variable?
+
+## 3. Data *and* variable names in the column names
+
+Lets look at one more example of messy data that could be tidied by using `pivot_longer()`.
+
+```{r}
+d_ex4 <- readRDS("../data/part2_data_wide_4.rds")
+head(d_ex4)
+
+```
+
+🔔 **Question**: Why is this dataset not tidy? What would a tidy version of this dataset look like? How many columns and how many rows will we have in the tidy version?
+
+In this example, the column headers contain contain the names of **two** variables (`pop` and `income`) and the values of another variable (`worker_type`, with values "essential", "nonessential" and "nonLF"). The code for pivoting this looks a bit different:
+
+```{r}
+d_tidy4 <- d_ex4 |>
+  # we want to pivot all columns *except* stname so we can use the - to unselect this one
+  pivot_longer(cols = -stname, 
+               names_to = c(".value", "worker_type"), 
+               names_sep = "_")
+
+```
+
+The `cols` argument is the same, where we tell R we want to lengthen all columns except `stname`.
+
+The next argument, `names_to`, looks different. Instead of supplying multiple column names, we use a what's called a sentinel: `".value"`. A sentinel is a marker in the code that indicates a special meaning in the code. Within `names_to`, it signals to the function that the part of the original column names corresponding to **`.value`** should be kept as column names in the tidy data.
+
+The `names_sep` argument tells R how to distinguish between the part of column headers that belong to `".value"` and the part that belong to `worker_type`.
+
+![](images/pivot_longer_5.jpg)
+
+## 🥊 Challenge 3: pivot_longer() with .value
+
+Similar to `d_ex4`, the data `d_ex5` is in non-tidy form.
+
+```{r}
+d_ex5 <- readRDS("../data/part2_data_wide_5.rds")
+head(d_ex5)
+```
+
+Why is `d_ex5` not in tidy form? What would the tidy version look like? Use `pivot_longer()` to wrangle the data into a tidy dataframe with one row per state and worker type, and the variables `pop` and `college`. Use the code above that we used to create `d_tidy4` as a guide.
+
+```{r}
+
+d_tidy5 <- d_ex5 |>
+  # YOUR CODE HERE
+
+
+```
+
+# Widening Data
+
+`pivot_longer()` is mostly used to reshape data into tidy form so that we can more easily answer questions with `tidyverse` functions or make plots using `ggplot`.
+
+⚠️ **Warning**: While the tidy data framework is helpful it is not always the case that you will want your data in this format.
+
+For example, what if we want to know the income difference between essential and non-essential workers by state?
+
+```{r}
+head(d)
+```
+
+Looking at our tidy data, instead of having one column for `worker_type` and one column for `income`, it would be more helpful to have two columns, one with the income of essential workers and one with the income of non-essential workers. Then we could subtract the columns from each other and have the income-difference between essential and non-essential workers.
+
+To do this we will be decreasing the number of rows and increasing the number of columns. We can do this with the function `pivot_wider()`. It looks similar to `pivot_longer()` but takes different arguments:
+
+1.  `id_cols`: the column(s) in the original dataframe that uniquely identify the rows we want in the reshaped data
+
+2.  `names_from`: the variable in the original data that contains the **names** for the new columns in the reshaped data
+
+3.  `values_from`: the variable in the original data that contains the **values** for the new columns in the reshaped data
+
+```{r}
+d_wide <- d |>
+  pivot_wider(id_cols = stname,
+              names_from = worker_type,
+              values_from = income)
+
+head(d_wide)
+
+```
+
+💡 **Tip**: In `pivot_longer()` we provided strings to the arguments because they were the names of **new** columns. In `pivot_wider()` we don't need to provide strings because we are referencing **existing** columns.
+
+Always ask yourself, **what format can I wrangle my data into that makes it most easy to answer the questions I am asking?** Even though the new data isn't in tidy form, it is more helpful to answer the question, what is the income difference between essential and non-essential workers?
+
+```{r}
+
+# calculate the difference in income between essential and non-essential workers
+d_wide |>
+  mutate(income_diff = nonessential-essential) |>
+  arrange(desc(income_diff))
+
+```
+
+## 🥊 Challenge 4: pivot_wider()
+
+Which state has the largest difference between non-essential and essential workers in the share of people with college degrees? Which state as the smallest? How does this compare to the ranking of states based on income difference between non-essential and essential workers?
+
+Use `pivot_wider()` to reshape `d` into wider format that will help you answer this question. Then use functions from tidyverse to calculate the difference in college share between non-essential and essential workers.
+
+```{r}
+ 
+# YOUR CODE HERE
+
+
+```
+
+**🥊 Additional Challenge:** how can you adapt the code for pivot_wider() so that you can have in one dataframe both the income difference and the share with a college degree difference between essential and non-essential workers?
+
+```{r}
+
+# YOUR ANSWER HERE
+```
+
+# Takeaways
+
+1.  having data in **tidy** form (one row per observation, one column per row) makes it possible to use `tidyverse` functions for data transformation, analysis and visualization
+
+2.  the functions `pivot_longer()` and `pivot_wider()` are commonly used to **wrangle** data into tidy form
+
+3.  tidy data is a good starting framework for how to organize data but should not be used dogmatically - instead, always ask what is the most helfpul organization of data for your specific purpose
+
+## Next steps...
+
+Wrangling data into different forms (longer or wider) is often a necessary step before creating plots and visualizations in R. You're now prepared to take DLab's [R Data Visualization](https://github.com/dlab-berkeley/R-Data-Visualization) to learn how to create plots using `ggplot()`.

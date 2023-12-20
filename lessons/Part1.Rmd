@@ -23,8 +23,6 @@ Always remember the [D-Lab](https://dlab.berkeley.edu/home) moto: It's Okay Not 
 
 Throughout this workshop series, we will use the following icons:
 
-*There are too many icons, do I even use all of them?*
-
 🔔 **Question**: A quick question to help you understand what's going on.
 
 🥊 **Challenge**: Interactive exercise. We'll go through these in the workshop!
@@ -36,8 +34,6 @@ Throughout this workshop series, we will use the following icons:
 📝 **Poll**: A zoom poll to help you learn.
 
 🎬 **Demo**: Showing off something more advanced so you know what you can use R for in the future.
-
-🤖 **chatGPT**: Helps you use chatGPT to improve your code and understanding.
 
 ## Tidyverse
 
@@ -56,47 +52,47 @@ library(tidyverse)
 ?tidyverse
 ```
 
-## Tidy Data
+# Tidy Data
 
 In Part 1, we will learn what "tidy" data is and how we can **transform** tidy data to answer questions about our data.
 
-### 🥊 Challenge 1: Exploring the data
+## 🥊 Challenge 1: Exploring the data
 
-Use the `read.csv()` function to read in our dataframe for part 1 in "../data/part1_data.csv".
+Use the `readRDS()` function to read in our dataframe for part 1 in "../data/part1_data.csv".
 
 Use the functions `head()`, `glimpse()`, and `View()` to explore the data and find out what information it contains. What are the observations/units in the data? What are the variables?
 
 ```{r}
 
 # read in data - watch out for relative file paths!
-d <- read.csv("..")
+d <- readRDS("..")
 
 # explore the data using head(), glimpse(), View()
 
 
 ```
 
-Our data comes from the American Community Survey (ACS), an annual survey conducted by the Census. The ACS samples every 1 in 100 households and asks questions on people's jobs, income, food security, relationships etc. You can explore the data at IPUMS USA: <https://usa.ipums.org/usa/>.
+Our data comes from the American Community Survey (ACS), an annual survey conducted by the Census. The ACS samples every 1 in 100 households and asks questions on people's jobs, income, food security, relationships etc. You can explore the data at IPUMS USA: <https://usa.ipums.org/usa/>. Social scientists typically refer to data about individual people as "micro" data.
 
 This dataframe is in "tidy" form. This means that **each row is an observation, each column is a variable, and each cell is a single value.**
 
 ![Source: Wickham, Cetinkaya-Rundel and Grolemund. 2023. R for Data Science (2e)](../images/tidy_data.png)
 
-Having your data in tidy form facilitates data **analysis** and **visualization**. For example, we might want to calculate the average income for women by each racial group.
+Having your data in tidy form facilitates data **analysis** and **visualization**. For example, we might want to calculate the average income for women by education.
 
-🔔 Looking at our dataframe, explain in words (no coding required) what we could do to get this? Write your answer in the chat. Don't hit send yet! We will send all our answers together.
+**🔔 Question:** Looking at our dataframe, explain in words (no coding required) what we could do to get this? Write your answer in the chat. Don't hit send yet! We will send all our answers together.
 
-### 🎬 Demo: Transforming tidy data
+## 🎬 Demo: Transforming tidy data
 
-Calculate the average family income for women by racial group. By the end of Part 1, you will be able to do this!
+Calculate the average family income for adults by education. By the end of Part 1, you will be able to do this!
 
 ```{r}
 
 d |>
-  # subset to women
-  filter(sex == 2) |>
-  # split the data into racial groups
-  group_by(race) |>
+  # subset to people age 18+
+  filter(age >= 18) |>
+  # split the data into education levels
+  group_by(educ) |>
   # calculate the average income by group
   summarize(avg_income = mean(income, na.rm = T)) |>
   # sort by average income in descending order
@@ -104,25 +100,19 @@ d |>
 
 ```
 
-*Simplify the text below - put in bullet points the answers to: Why is tidy data good?*
+Why is it helpful to have tidy data (one observation per row, one variable per column)?
 
--   *we can answer questinos without changing*
+-   Perform common **transformations** that let us answer questions about our data (eg. dropping observations, selecting certain variables, calculating statistics for sub-groups of our data)
 
--   *standardized data*
+-   A standardized structure to the data makes it possible for functions in R to operate on the data
 
--   *\<one more thing\>*
-
-Having our data in tidy form (one observation per row, one variable per column) means we can answer this question without having to change anything about our data. We can get rid of observations that aren't relevant (filtering). We can identify the variables that we care about (subsetting columns). And we can calculate a statistic for different groups in our population (grouping). All these actions come under data **transforming**.
-
-In addition, having data in tidy form gives a standardized way to read data. When there is a clear expectation of how your data is structured, it makes it easier to share with others and for your future self - helping with both reproducibility and collaboration.
+-   Clear expectations for how the data are set up make it easier for collaborators and future-you to understand
 
 The diagram below shows a typical workflow of starting with data, tidying it, understanding it, and then communicating your findings. In today's workshop we will learn how to **transform** our tidy data. In Part 2, we will move one step backwards and learn how to **tidy** messy data.
 
 ![Source: Wickham, Cetinkaya-Rundel and Grolemund. 2023. R for Data Science (2e)](../images/workflow.png)
 
-**📝 Poll RData 1-1:** Which of the described dataframes are in tidy form?
-
-## Tidyverse Grammar
+# Tidyverse Grammar
 
 The `tidyverse` package that we installed earlier provides useful functions for transforming tidy data. In this workshop we will cover commonly used functions from the `tidyverse` package - some of which we saw above in the demo. Each of these commands work in a similar way.
 
@@ -132,19 +122,19 @@ The `tidyverse` package that we installed earlier provides useful functions for 
 
 -   they can be "chained" together with piping - this means that the output of a function becomes the input of the next function
 
-## Subsetting Data
+# Subsetting Data
 
 Often times we start with a larger dataframe than we actually need. In the example above we only needed women and the variables `race` and `income`. Subsetting means selecting certain observations (rows) and variables (columns).
 
-### select()
+## select()
 
 The `select()` function allows us to select a subset of variables from our dataframe. The first argument is a tidy dataframe and the second argument is the names of the variables we want.
 
-💡 You do not need to put quotation marks around the variable names. This is a convenient feature of all `tidyverse` functions.
+**💡 Tip:** You do not need to put quotation marks around the variable names. This is a convenient feature of all `tidyverse` functions.
 
 ```{r}
 
-select(d, family_ID, person_num, employment_status, age)
+select(d, family_ID, person_num, educ, age)
 
 ```
 
@@ -153,7 +143,7 @@ This is the same as starting with the tidy dataframe, **piping** it into the `se
 ```{r}
 
 d |>
-  select(family_ID, person_num, employment_status)
+  select(family_ID, person_num, educ, age)
 
 ```
 
@@ -161,30 +151,33 @@ We can also save our selected variables to a new dataframe using the `<-` operat
 
 ```{r}
 
-d_employment <- d |> 
-  select(family_ID, person_num, employment_status)
+d_educ <- d |> 
+  select(family_ID, person_num, educ, age)
 
 ```
 
-🔔 Use the `dim()` function to check the number of rows and columns in `d`. How many rows and columns should be in `d_employment`?
+📝 **Poll R-Data 1-1:** The origial dataframe d has 100000 rows and 13 columns. How many rows and columns should be in `d_educ`?
 
 ```{r}
 
 dim(d)
 
-dim(d_employment)
+dim(d_educ)
 ```
 
 This diagram illustrates what we just did:
 
 ![](../images/select.png)
 
-### 🥊 Challenge 2: Using documentation to improve select()
+## 🥊 Challenge 2: Using documentation to improve select()
 
 If you want to select more than a few variables, it can become tedious to write them all out. `tidyverse` uses what it calls `<tidy-select>` language to give shortcuts for selecting multiple variables. We can go to the `select()` documentation to see this.
 
 ```{r}
 ?select
+
+# for example, we can use : to select all variables from race to age
+d |> select(race:age)
 ```
 
 Using the documentation for guidance, use different `tidy-select` expressions to select the variables described below. If you prefer viewing the documentation online as opposed to in the Help window, you can go to <https://dplyr.tidyverse.org/reference/select.html>.
@@ -194,30 +187,24 @@ Using the documentation for guidance, use different `tidy-select` expressions to
 # (1) select all variables to do with state
 d |> select(starts_with(...))
 
-# (2) contains (don't give the function, just prompt it)
+# (2) contains an underscore "_"
 
-# (2) select all variables from race to age
-# this one is easier than (1) - move out of the challenge 
-# then challenge is focused on putting expressions within select 
-d |> select(race:age)
 
 # (3) select all variables that are numbers 
-## hint: the top of
-# --> 
-d |> select(where(...))
+## hint: the description at the top of ?select says how to do this
 
 ```
 
-### filter()
+## filter()
 
 Selecting certain rows, especially those that meet specific conditions, is often necessary to answer questions about our data. To do this, we can use the `filter()` function. Like other `tidyverse()` commands it takes a tidy dataframe as its first argument. Next, we tell it what conditions we want the rows to meet. It returns all rows from our dataframe that meet those conditions.
 
 ```{r}
-# in the demo at the beginning, we asked what the average income was for women by race
-# we first needed to filter our dataframe to only women 
+# in the demo at the beginning, we asked what the average income was for adults by educational attainment
+# we first needed to filter our dataframe to only people 18+ 
 
 d |> 
-  filter(sex == 2)
+  filter(age >= 18)
 
 ```
 
@@ -251,7 +238,7 @@ d_not_westcoast <- d |>
 
 ```
 
-🔔 How can we check if we have got the right rows in each of our new dataframes?
+**🔔 Question:** How can we check if we have got the right rows in each of our new dataframes?
 
 ```{r}
 
@@ -266,24 +253,24 @@ We can also supply multiple conditions at once separated by:
 
 -   `|`: or - returns rows that are true for **either** statements
 
-🔔 In general, which condition, `&` or `|`, will return *more* rows? Why?
+📝 **Poll R-Data 1-2**: In general, which condition, `&` or `|`, will return *more* rows? Why?
 
 ```{r}
 
-# select all people who are women AND live on the west coast
+# select all people who are adults AND live on the west coast
 d |> 
-  filter(sex == 2 & state %in% c("California", "Oregon", "Washington"))
+  filter(age >= 18 & state %in% c("California", "Oregon", "Washington"))
 
-# select all people who are women OR people who live on teh west coast 
+# select all people who are adults OR people who live on teh west coast 
 d |> 
-  filter(sex == 2 | state %in% c("California", "Oregon", "Washington"))
+  filter(age >= 18 | state %in% c("California", "Oregon", "Washington"))
 
 
 ```
 
-### 🥊 Challenge 3: Combining conditional statements in filter()
+## 🥊 Challenge 3: Combining conditional statements in filter()
 
-We want a dataframe containing people who are eligible for social security. Let's say that men are eligible age 60 and women are eligible age 55. However, California recently implemented a new policy that says you're eligible for social security at age 50, regardless of gender.
+We want a dataframe containing people who are eligible for social security. Let's say that men are eligible age 60 and women (`sex == 2`) are eligible age 55. However, California recently implemented a new policy that says you're eligible for social security at age 50, regardless of gender.
 
 Use `filter()` with the `&` and `|` to create a dataframe of people eligible for social security based on these conditions:
 
@@ -293,56 +280,30 @@ Use `filter()` with the `&` and `|` to create a dataframe of people eligible for
 
 -   Anyone aged 50 or over who *is* in California
 
-💡 You can use parenthesis to separate out multiple conditions. There are multiple ways to do this.
+**💡 Tip:** You can use parenthesis to separate out multiple conditions. There are multiple ways to do this.
+
+```{r}
+
+# YOUR CODE HERE
+  
+
+```
+
+**🔔 Question:** what are some ways we could check that we have filtered down to the correct observations?
 
 ```{r}
 
 
 
-
-# ANSWERS - copy into solutions script
-
-# simplest answer 
-d_ss_v2 <- d |>
-  filter((sex == 1 & age >= 60 & state != "California") |
-           (sex == 2 & age >= 55 & state != "California") |
-           (age >= 50 & state == "California"))
-
-
-# shorthand, but less intuitive
-d_ss <- d |> 
-  filter(state != "California" & (sex == 1 & age >= 60 | sex == 2 & age >= 55) |
-           state == "California" & age >= 50)
-
-
-# check both methods get the same dataframe
-all.equal(d_ss, d_ss_v2)
-
-# check if we have the right age range
-summary(d_ss$age)
-
-# check age range for california
-d_ca <- d_ss |>
-  filter(state == "California")
-summary(d_ca$age)
-
-# check age range for outside california
-d_not_ca <- d_ss |>
-  filter(state != "California")
-summary(d_not_ca$age)
-  
-
 ```
 
-*Poll: multiple choice about how we would check that we have the right answer*
+# Break Time ☕
 
-## Break Time ☕
-
-## Creating New Variables
+# Creating New Variables
 
 Creating new variables in your existing dataframe is often necessary for visualization and analysis. For example, we might want to plot income in \$1000s to make it more readable, or group people into age bins.
 
-### mutate()
+## mutate()
 
 ```{r}
 
@@ -363,64 +324,73 @@ head(d_new)
 
 ```
 
-### factor()
+## factor()
 
-A common `mutate()` is converting categorical variables into factors. Factors are a type of variable (like numeric or string) that are used when variables have a finite number of discrete values. For example, in our data `sex` can be one of two values: 1 or 2.
+A common `mutate()` is converting categorical variables into factors. Factors are a type of variable (like numeric or string) that are used when variables have a finite number of discrete values. For example, in our data `worker_type` can be one of three values: 1, 2 or 3. The codes mean:
 
-*if the sex one is too boring, and if the challenge is too long with two, instead use employment status and ignore gender*
+-   1 = not in the labor force
+
+-   2 = essential worker
+
+-   3 = non-essential worker
 
 ```{r}
 
-# see the values of sex
-table(d$sex)
+# see the values of worker_type
+table(d$worker_type)
 
 ```
 
-If we plotted the relationship between age and income by gender, R assumes that gender is a numeric variable that could take on any number. The legend on this plot doesn't make sense.
+If we plotted the relationship between age and income by worker type, R assumes that worker type is a numeric variable that could take on any number. The legend on this plot doesn't make sense.
 
 ```{r}
 
 d |> 
   filter(age >= 25) |>
   ggplot() +
-  geom_smooth(aes(x = age, y = income, color = sex, group = sex), se = FALSE) +
+  geom_smooth(aes(x = age, y = income, color = worker_type, group = worker_type), se = FALSE) +
   theme_bw()
   
 ```
 
-We can instead convert `sex` to a factor, letting R know that it is a categorical variable with only two values.
+We can instead convert `worker_type` to a factor, letting R know that it is a categorical variable with only three values.
 
 ```{r}
 
 d_factor <- d |>
-  mutate(sex_cat = factor(sex))
+  mutate(worker_cat = factor(worker_type))
 
 # look at the values - looks the same
-table(d_factor$sex_cat)
+table(d_factor$worker_cat)
 
 ```
 
-Now when we plot `sex`, R know that it can only be one of two values and the legend makes more sense.
+Now when we plot `worker_cat`, R know that it can only be one of three values and the legend makes more sense.
 
 ```{r}
 
 d_factor |> 
   filter(age >= 25) |>
   ggplot() +
-  geom_smooth(aes(x = age, y = income, color = sex_cat, group = sex_cat), se = FALSE) +
+  geom_smooth(aes(x = age, y = income, color = worker_cat, group = worker_cat), se = FALSE) +
   theme_bw()
 ```
 
-We can make the factor version of `sex` even more useful by adding "labels" to it. The values 1 and 2 are the "levels" of the factor, which means the values that the variable can take on.
+We can make the factor version of `worker_type` even more useful by adding "labels" to it. The values 1, 2 and 3 are the "levels" of the factor, which means the values that the variable can take on.
 
 ```{r}
 # see the levels of factor with levels()
-levels(d_factor$sex_cat)
-
+levels(d_factor$worker_cat)
 
 ```
 
-But the levels are only helpful if we know what they mean. A lot of the time, data is given to you in numbers even if the numbers represent something else. Hopefully the data is accompanied by a codebook where you can look up what the numbers mean. For our data, we can go to the online codebook at IPUMS ACS: <https://usa.ipums.org/usa-action/variables/SEX#codes_section>. Here, we see that 1 means "men" and 2 means "women".
+But the levels are only helpful if we know what they mean. A lot of the time, data is given to you in numbers even if the numbers represent something else. Hopefully the data is accompanied by a codebook where you can look up what the numbers mean. We know the following:
+
+-   1 = not in the labor force
+
+-   2 = essential worker
+
+-   3 = non-essential worker
 
 We can use the `factor()` command to store this information as part of our variable.
 
@@ -431,59 +401,51 @@ We can use the `factor()` command to store this information as part of our varia
 
 # create a factor with labels 
 d_factor <- d |>
-  mutate(sex_cat = factor(sex, labels = c("men", "women")))
+  mutate(worker_cat = factor(worker_type, labels = c("not in LF", "essential", "non-essential")))
 
 # look at the values for the variable
-table(d_factor$sex_cat)
+table(d_factor$worker_cat)
 
 ```
 
-Now when we plot `sex`, the factor version of the variable provided R all the information it needs to make a more informative plot.
+Now when we plot `worker_cat`, the factor version of the variable provides R all the information it needs to make a more informative plot.
 
 ```{r}
 
 d_factor |> 
   filter(age >= 25) |>
   ggplot() +
-  geom_smooth(aes(x = age, y = income, color = sex_cat, group = sex_cat), se = FALSE) +
+  geom_smooth(aes(x = age, y = income, color = worker_cat, group = worker_cat), se = FALSE) +
   theme_bw()
 
 
 ```
 
-### 🥊 Challenge 4: Using factor() within mutate()
+## 🥊 Challenge 4: Using factor() within mutate()
 
-Similar to `sex`, both `educ` and `employment_status` are categorical variables that are currently stored as numeric variables. Look up their codes in the ACS codebook (link below) and convert them both to factors.
+Similar to `worker_type`, both `sex` and `employment_status` are categorical variables that are currently stored as numeric variables. Look up their codes in the ACS codebook (links below) and convert them both to factors.
 
-🤖 Additional challenge: one of these should be an "ordered factor" and one of them shouldn't. Use chatGPT or google to understand the difference between "ordered factors" and "not ordered factors".
-
-*LOOK AT THE DIFFERENCE BETWEEN GOOGLE AND CHATGPT (the chatGPT one is a lot better)*
-
-Once you understand the difference, decide which variable should be ordered by considering the codebooks and use the help page (?factor) or chatGPT/Google to convert it into an ordered factor.
-
-*Introduce chatGPT earlier*
-
-Codebook for `educ`: <https://usa.ipums.org/usa-action/variables/EDUC#codes_section>
+Codebook for `sex`: <https://usa.ipums.org/usa-action/variables/SEX#codes_section>
 
 Codebook for `employment_status`: <https://usa.ipums.org/usa-action/variables/EMPSTAT#codes_section>
 
 ```{r}
 
-d_c4 <- d |>
+d_ch4 <- d |>
   mutate(...)
 
 
 ```
 
-## Grouped Data
+# Grouped Data
 
-At the start of this we asked, what is the average income for women by each racial group? Answering this involves splitting our data into racial groups, then calculating the mean income for each group, then combining the answers together. This is a common task in data transformation, known as "grouping" or "split-apply-combine". The diagram below illustrates the general steps.
+At the start of this we asked, what is the average income for adults by education? Answering this involves splitting our data into education groups, then calculating the mean income for each group, then combining the answers together. This is a common task in data transformation, known as "grouping" or "split-apply-combine". The diagram below illustrates the general steps.
 
 ![](../images/split_apply.png)
 
-### group_by()
+## group_by()
 
-The first step is to tell R that our dataframe should be grouped by a certain variable (or variables). Doing this doesn't change anything about our dataframe, but it lets R know which variable contains the groups that we will later want to apply a command to. For our question, what is the average income by racial group, the variable that divides our data into groups is `race`.
+The first step is to tell R that our dataframe should be grouped by a certain variable (or variables). Doing this doesn't change anything about our dataframe, but it lets R know which variable contains the groups that we will later want to apply a command to. For our question, what is the average income by education, the variable that divides our data into groups is `educ`.
 
 ```{r}
 
@@ -492,17 +454,17 @@ glimpse(d)
 
 # save the same dataframe but grouped by race
 d_group <- d |>
-  group_by(race)
+  group_by(educ)
 
 glimpse(d_group)
 
 ```
 
-🔔 Do you notice anything different about `glimpse(d)` and `glimpse(d_group)`?
+**🔔 Question:** Do you notice anything different about `glimpse(d)` and `glimpse(d_group)`?
 
-### summarize()
+## summarize()
 
-The purpose of grouping a dataframe is so that we can perform some operation on each of the groups. For example, if we want to count how many people there are in each racial group. Or if we want to estimate the average income in each racial group. To do this, we use the `summarize()` command.
+The purpose of grouping a dataframe is so that we can perform some operation on each of the groups. For example, if we want to count how many people there are in each education group. Or if we want to estimate the average income in each education group. To do this, we use the `summarize()` command.
 
 `summarize()` is similar to `mutate()` in that it creates new columns. The difference is that it does not keep the original dataframe. Instead, it returns only the new columns created and only one row per group.
 
@@ -514,7 +476,7 @@ d_group |>
 
 ```
 
-💡 `n()` is a function that counts the number of rows with a group. Many functions can be used inside `summarize()` to get group summary statistics - for a useful list, ask chatGPT or google.
+**💡 Tip:** `n()` is a function that counts the number of rows with a group. Many functions can be used inside `summarize()` to get group summary statistics - for a useful list, ask chatGPT or google.
 
 Note that we used the dataframe `d_group`. What if we used `summarize()` on the original dataframe?
 
@@ -525,7 +487,7 @@ d |>
 
 ```
 
-🔔 Why is the output for `summarize()` on the dataframe `d` different to the output of `summarize()` on the dataframe `d_group`?
+📝 **Poll R-Data 1-3:** Why is the output for `summarize()` on the dataframe `d` different to the output of `summarize()` on the dataframe `d_group`?
 
 Like `mutate()`, we can create multiple new variables with summary statistics inside `summarize()`.
 
@@ -533,8 +495,8 @@ Like `mutate()`, we can create multiple new variables with summary statistics in
 
 # return the frequency, the minimum income, maximum income, and mean income by racial group
 d |>
-  # first group by race (we could also use d_group which is already grouped)
-  group_by(race) |>
+  # first group by education (we could also use d_group which is already grouped)
+  group_by(educ) |>
   summarize(freq = n(),
             min_inc = min(income),
             max_inc = max(income),
@@ -542,34 +504,35 @@ d |>
 
 ```
 
-### 🥊 Challenge 5: Missing values
+## 🥊 Challenge 5: Missing values
 
-The code above returned `NA` for the minimum, maximum, and average values of income by racial group. Can you figure out why?
+The code above returned `NA` for the minimum, maximum, and average values of income by education. Can you figure out why?
 
-🤖 Once you've figured out why this has happened, copy and paste the code into chatGPT and see how you can fix the problem. Do you understand the solutions it suggests?
+Once you've figured out why this has happened, try to fix it. You can do so by looking at the help page for the functions (`?mean`, `?min`, `?max`), or use Google or ChatGPT.
+
+**💡 Tip:** Use Google and/or chatGPT to solve coding problems are a frequent and necessary part of writing code.
 
 ```{r}
-
-# fixed code
+# YOUR CORRECTED CODE HERE
 
 
 ```
 
-### arrange()
+## arrange()
 
-At this point we can group our data by race and calculate various summary statistics. The output of `summarize()` is a new dataframe, which we can also apply functions to. A common need is to re-order our rows to communicate something about the data.
+At this point we can group our data by a given variable and calculate various summary statistics. The output of `summarize()` is a new dataframe, which we can also apply functions to. A common need is to re-order our rows to communicate something about the data.
 
-For example, what if we want to see which racial groups have the highest and lowest average income?
+For example, what if we want to which type of worker (`worker_type`) has the highest share of people with college degrees?
 
 ```{r}
 
 d |>
-  # group by racial group
-  group_by(race) |>
-  # calculate average income - watch for missing values
-  summarize(avg_inc = mean(income, na.rm = T)) |>
+  # group by type of worker
+  group_by(worker_type) |>
+  # calculate the share of people with BAs or graduate degrees - this involves a conditional inside mutate
+  summarize(college = mean(educ == "BA" | educ == "graduate")) |>
   # sort in ascending order
-  arrange(avg_inc)
+  arrange(college)
 
 ```
 
@@ -578,57 +541,37 @@ To sort in descending order, we use the function `desc()` inside `arrange()`.
 ```{r}
 
 d |>
-  # group by racial group
-  group_by(race) |>
-  # calculate average income - watch for missing values
-  summarize(avg_inc = mean(income, na.rm = T)) |>
+  # group by type of worker
+  group_by(worker_type) |>
+  # calculate the share of people with BAs or graduate degrees 
+  summarize(college = mean(educ == "BA" | educ == "graduate")) |>
   # sort in ascending order
-  arrange(desc(avg_inc))
+  arrange(desc(college))
 
 ```
 
-### 🥊 Challenge 6: Putting it all together
+## 🥊 Challenge 6: Putting it all together
 
-This challenge to combines the functions we have learned throughout Part 1. Starting with our original tidy data, produce a summary statistics table by state. For each state, limiting to working people (`employment_status`) report the following:
+This challenge to combines the functions we have learned throughout Part 1. Starting with our original tidy data, produce a summary statistics table by state for working adults. Starting with `d`, limit to adults (`age`) and those who are working (`empployment_status`). For each state calculate:
 
--   average income for working people
+-   average income (`income`) - look out for missing values
 
--   the age of the youngest worker
+-   the share of people with a college degree or higher (`educ`)
 
--   the age of the oldest worker
+-   the share of people who are essential workers (`worker_type`) - look out for the variable codes
 
--   the share of working people with four years of college or more (`educ`)
+Sort your final dataframe by the share of people who are essential workers. How many rows should you have?
 
-Sort your final dataframe by the share of people with 4+ years of college.
-
-Here are the links to the codes for the [employment_status](https://usa.ipums.org/usa-action/variables/EMPSTAT#codes_section) and [educ](https://usa.ipums.org/usa-action/variables/EDUC#codes_section) variables. You can choose whether or not to convert these categorical variables to factors (it is not necessary but is good practice).
-
-*DO SOMETHING EARLIER WITH HISPANIC WHERE WE CALCUALTE THE SHARE SO IT'S POSSIBLE HERE*
-
-🤖 You can ask chatGPT for help at anytime. If you do, see how you would explain the code it gives you to all of us.
+**🤖 chatGPT:** You can ask google or chatGPT for help at anytime. If you do, think how you would explain the code it gives you to all of us.
 
 ```{r}
 
-# ANSWERS
-d |>
-  # remove people who aren't working
-  filter(employment_status == 1) |>
-  # group by state
-  group_by(state) |>
-  # calculate summary statistics
-  summarize(avg_income = mean(income, na.rm = T),
-            youngest_worker = min(age),
-            eldest_worker = max(age),
-            share_BA = mean(educ >= 10)) |>
-  # sort by share 4 years of college
-  arrange(share_BA)
+# YOUR CODE HERE
 
 
 ```
 
-*Do we want to end with the same question as the demo? A very similar one? Or something that sets up the data for Part 2?* *Want the examples above in the group_by() and summarize() to lead to this challenge*
-
-## Takeaways
+# Takeaways
 
 1.  **tidy** data means one observation per row, one variable per column, and one value per cell - it is a helpful format to have your data in before doing visualizations or analysis
 
@@ -636,6 +579,6 @@ d |>
 
 3.  The functions `select()`, `filter()`, `mutate()`, `factor()`, `group_by()` and `summarize()` from `tidyverse` help us change the data in order to answer questions about our data
 
-*Need to bring in chatGPT earlier so they know how to use it. Do people need to have accounts already?*
+## Next steps...
 
-*How can I use chatGPT throughout? Are there conceptual questions that chatGPT can answer? Like why do we want to have tidy data? What makes it hard to have less tidy data?*
+Transforming data using functions from `tidyverse` are often necessary before performing statistical analyses, such as training machine learning models. You're now prepared to take DLab's [R Machine Learning](https://github.com/dlab-berkeley/r-machine-learning-pilot) to learn how to do machine learning using `tidymodels`.
