@@ -29,7 +29,7 @@ After this workshop, you will be able to:
 2.  Identify how an "untidy" dataframe gets in the way of data
     visualization and analysis
 
-3.  Use `tidyverse` functions to **wrangle** a dataframe into "tidy"
+3.  Use `pivot_longer` and `pivot_wider` to **wrangle** a dataframe into "tidy"
     form
 
 This workshop does not cover the following:
@@ -107,9 +107,7 @@ Check out the following resources to learn more about data wrangling in
 R:
 
 -   [R for Data Science](https://r4ds.hadley.nz/): *A comprehensive
-    online textbook by Hadley Wickham, who helped develope `tidyverse`*
--   [Resource2](LinkToResource2): *Explain Resource 2*
--   [...]
+    online textbook by Hadley Wickham, who helped develop `tidyverse`*
 
 # About the UC Berkeley D-Lab
 
