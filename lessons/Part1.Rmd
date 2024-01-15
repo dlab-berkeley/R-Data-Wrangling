@@ -84,7 +84,7 @@ Having your data in tidy form facilitates data **analysis** and **visualization*
 
 ## 🎬 Demo: Transforming tidy data
 
-Calculate the average family income for adults by education. By the end of Part 1, you will be able to do this!
+What is the average family income for adults by education level? By the end of Part 1, you will be able to do this!
 
 ```{r}
 
