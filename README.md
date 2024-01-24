@@ -30,7 +30,7 @@ After this workshop, you will be able to:
     visualization and analysis
 
 3.  Use `pivot_longer` and `pivot_wider` to **wrangle** a dataframe into "tidy"
-    form
+    form, and learn how to join multiple dataframes
 
 This workshop does not cover the following:
 
