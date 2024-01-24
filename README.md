@@ -30,9 +30,9 @@ After this workshop, you will be able to:
     visualization and analysis
 
 3.  Use `pivot_longer` and `pivot_wider` to **wrangle** a dataframe into "tidy"
-    form
+    form, and join multiple dataframes
 
-This workshop does not cover the following:
+This workshop does **not** cover the following:
 
 -   Data visualization in R (this is covered in D-Lab's [R Data
     Visualization](https://github.com/dlab-berkeley/R-Data-Visualization)
