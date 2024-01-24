@@ -10,7 +10,7 @@ p_load(tidyverse, data.table, here)
 setwd(here())
 
 # Raw data ----
-d_raw <- fread("./data/usa_00087.csv")
+d_raw <- fread("./utils/usa_00087.csv")
   # there are 3 million observations - probably want to limit this
 
 head(d_raw)
@@ -33,7 +33,7 @@ colnames(d) <- tolower(colnames(d))
 # head(d)
 
 # make state a string variable
-fips <- fread("./data/us-state-ansi-fips.csv") %>%
+fips <- fread("./utils/us-state-ansi-fips.csv") %>%
   rename(statefip = st)
 d <- left_join(d, fips, by = 'statefip')
 

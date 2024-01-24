@@ -423,49 +423,6 @@ dim(d_pop)
 d_educ <- readRDS("../data/part2_data_join_3.rds")
 dim(d_pop)
 
-# YOUR CODE HERE
-
-# ANSWERS
-# OPTION #1 - pivot first 
-d_educ_wide <- d_educ %>%
-  pivot_wider(id_cols = stname,
-              values_from = educ_pop,
-              names_from = degree)
-dim(d_educ_wide)
-
-# perform left join - drops DC from d_educ_wide b/c we don't have state population on this
-d_educ_pop <- left_join(x = d_pop, y = d_educ_wide, by = 'stname') %>%
-  # estimate share with college and graduate degrees
-  mutate(share_college = bachelors/pop,
-         share_grad = graduate/pop,
-         # calculate difference in shares
-         difference = share_college-share_grad) %>%
-  # sort by smallest difference first 
-  arrange(difference)
-
-head(d_educ_pop)
-
-# OPTION #2 - join first 
-d_join <- left_join(x = d_pop, y = d_educ, by = "stname")
-dim(d_join)
-
-# notice that now pop is repeated for two rows b/c we joined 1 row in d_pop to 2 rows in d_educ for each state
-head(d_join)
-
-# pivot wider 
-d_join_wide <- d_join %>%
-  pivot_wider(id_cols = c(stname, pop),
-              values_from = educ_pop,
-              names_from = degree) %>%
-  # calculate share and difference
-  mutate(share_college = bachelors/pop,
-         share_grad = graduate/pop,
-         # calculate difference in shares
-         difference = share_college-share_grad) %>%
-  # sort by smallest difference first 
-  arrange(difference)
-
-head(d_join_wide)
 
 ```
 
@@ -520,7 +477,7 @@ The `names_sep` argument tells R how to distinguish between the part of column h
 
 ![](images/pivot_longer_5.jpg)
 
-## 🥊 Challenge Extra: pivot_longer() with .value
+## 🥊 Extra Challenge: pivot_longer() with .value
 
 Similar to `d_ex4`, the data `d_ex5` is in non-tidy form.
 

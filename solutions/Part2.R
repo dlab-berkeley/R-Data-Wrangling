@@ -27,13 +27,7 @@ d_tidy2 <- d_ex2 |>
                names_to = "worker_type",
                values_to = "pop")
 
-## Challenge 3: pivot_longer() with .value ----
-d_tidy5 <- d_ex5 |>
-  pivot_longer(cols = -worker_type,
-               names_to = c(".value", "state"),
-               names_sep = "_")
-
-## Challenge 4: pivot_wider() ----
+## Challenge 3: pivot_wider() ----
 d |>
   pivot_wider(id_cols = stname,
               names_from = worker_type,
@@ -49,4 +43,52 @@ d |>
   mutate(coll_diff = college_nonessential-college_essential,
          coll_inc = income_nonessential-income_essential)
 
+## Challenge 4: join and pivot ----
+
+# OPTION #1 - pivot first 
+d_educ_wide <- d_educ %>%
+  pivot_wider(id_cols = stname,
+              values_from = educ_pop,
+              names_from = degree)
+dim(d_educ_wide)
+
+# perform left join - drops DC from d_educ_wide b/c we don't have state population on this
+d_educ_pop <- left_join(x = d_pop, y = d_educ_wide, by = 'stname') %>%
+  # estimate share with college and graduate degrees
+  mutate(share_college = bachelors/pop,
+         share_grad = graduate/pop,
+         # calculate difference in shares
+         difference = share_college-share_grad) %>%
+  # sort by smallest difference first 
+  arrange(difference)
+
+head(d_educ_pop)
+
+# OPTION #2 - join first 
+d_join <- left_join(x = d_pop, y = d_educ, by = "stname")
+dim(d_join)
+
+# notice that now pop is repeated for two rows b/c we joined 1 row in d_pop to 2 rows in d_educ for each state
+head(d_join)
+
+# pivot wider 
+d_join_wide <- d_join %>%
+  pivot_wider(id_cols = c(stname, pop),
+              values_from = educ_pop,
+              names_from = degree) %>%
+  # calculate share and difference
+  mutate(share_college = bachelors/pop,
+         share_grad = graduate/pop,
+         # calculate difference in shares
+         difference = share_college-share_grad) %>%
+  # sort by smallest difference first 
+  arrange(difference)
+
+head(d_join_wide)
+
+## Extra challenge: pivot_longer() with .value ----
+d_tidy5 <- d_ex5 |>
+  pivot_longer(cols = -worker_type,
+               names_to = c(".value", "state"),
+               names_sep = "_")
 
