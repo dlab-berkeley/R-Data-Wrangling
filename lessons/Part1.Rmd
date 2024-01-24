@@ -78,7 +78,7 @@ This dataframe is in "tidy" form. This means that **each row is an observation, 
 
 ![Source: Wickham, Cetinkaya-Rundel and Grolemund. 2023. R for Data Science (2e)](../images/tidy_data.png)
 
-Having your data in tidy form facilitates data **analysis** and **visualization**. For example, we might want to calculate the average income for women by education.
+Having your data in tidy form facilitates data **analysis** and **visualization**. For example, we might want to calculate the the average family income for adults by education level.
 
 **🔔 Question:** Looking at our dataframe, explain in words (no coding required) what we could do to get this? Write your answer in the chat. Don't hit send yet! We will send all our answers together.
 

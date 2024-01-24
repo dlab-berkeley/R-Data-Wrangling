@@ -143,7 +143,7 @@ Two common tools for tidying data are **lengthening** and **widening** data. Tog
 
 **⚠️ Warning:** Throughout the examples we will refer to the messy dataframe we start with as the **original** data and the tidy dataframe we are getting to as the **reshaped** data. This is to be consistent with the language you will see in help files or online.
 
-## 1. Data in column names
+## Data in column names
 
 ```{r}
 head(d_ex1)
@@ -226,9 +226,7 @@ d_tidy2 <- d_ex2 |>
 
 ```
 
-# Break Time ☕
-
-## 2. Multiple types of data in column names
+## Multiple types of data in column names
 
 In the first two examples, the original dateframes had column names that contained **values** from a variable (state names in one and different types of workers in the other). In the next example, our column names contain **values** from *multiple* variables.
 
@@ -268,55 +266,7 @@ The column **names** from our original dataframe became the **values** of a **tw
 
 🔔 **Question**: How did R know which part of the column names from the original dataframe to put in the `worker_type` variable and which part to put in the `education` variable?
 
-## 3. Data *and* variable names in the column names
-
-Lets look at one more example of messy data that could be tidied by using `pivot_longer()`.
-
-```{r}
-d_ex4 <- readRDS("../data/part2_data_wide_4.rds")
-head(d_ex4)
-
-```
-
-🔔 **Question**: Why is this dataset not tidy? What would a tidy version of this dataset look like? How many columns and how many rows will we have in the tidy version?
-
-In this example, the column headers contain contain the names of **two** variables (`pop` and `income`) and the values of another variable (`worker_type`, with values "essential", "nonessential" and "nonLF"). The code for pivoting this looks a bit different:
-
-```{r}
-d_tidy4 <- d_ex4 |>
-  # we want to pivot all columns *except* stname so we can use the - to unselect this one
-  pivot_longer(cols = -stname, 
-               names_to = c(".value", "worker_type"), 
-               names_sep = "_")
-
-```
-
-The `cols` argument is the same, where we tell R we want to lengthen all columns except `stname`.
-
-The next argument, `names_to`, looks different. Instead of supplying multiple column names, we use a what's called a sentinel: `".value"`. A sentinel is a marker in the code that indicates a special meaning in the code. Within `names_to`, it signals to the function that the part of the original column names corresponding to **`.value`** should be kept as column names in the tidy data.
-
-The `names_sep` argument tells R how to distinguish between the part of column headers that belong to `".value"` and the part that belong to `worker_type`.
-
-![](images/pivot_longer_5.jpg)
-
-## 🥊 Challenge 3: pivot_longer() with .value
-
-Similar to `d_ex4`, the data `d_ex5` is in non-tidy form.
-
-```{r}
-d_ex5 <- readRDS("../data/part2_data_wide_5.rds")
-head(d_ex5)
-```
-
-Why is `d_ex5` not in tidy form? What would the tidy version look like? Use `pivot_longer()` to wrangle the data into a tidy dataframe with one row per state and worker type, and the variables `pop` and `college`. Use the code above that we used to create `d_tidy4` as a guide.
-
-```{r}
-
-d_tidy5 <- d_ex5 |>
-  # YOUR CODE HERE
-
-
-```
+# Break Time ☕
 
 # Widening Data
 
@@ -363,9 +313,11 @@ d_wide |>
 
 ```
 
-## 🥊 Challenge 4: pivot_wider()
+## 🥊 Challenge 3: pivot_wider()
 
-Which state has the largest difference between non-essential and essential workers in the share of people with college degrees? Which state as the smallest? How does this compare to the ranking of states based on income difference between non-essential and essential workers?
+Which state has the largest difference between non-essential and essential workers in the share of people with college degrees? Which state as the smallest?
+
+How does this compare to the ranking of states based on income difference between non-essential and essential workers?
 
 Use `pivot_wider()` to reshape `d` into wider format that will help you answer this question. Then use functions from tidyverse to calculate the difference in college share between non-essential and essential workers.
 
@@ -380,8 +332,144 @@ Use `pivot_wider()` to reshape `d` into wider format that will help you answer t
 
 ```{r}
 
-# YOUR ANSWER HERE
+# YOUR CODE HERE
 ```
+
+# Multiple Data Frames
+
+Until now, we have had a single data frame to work with. It can also be the case that you have multiple data frames that you want to combine. For example, we might have data on the state population in one data frame and information about the number of essential workers in another. To calculate the share of essential workers, we will need to combine these.
+
+```{r}
+# data on state population - doesn't include DC
+d_pop <- readRDS("../data/part2_data_join_1.rds")
+head(d_pop)
+dim(d_pop)
+
+# data on number of essential workers - only continental US, includes DC but not Hawaii or Alaska
+d_worker <- readRDS("../data/part2_data_join_2.rds")
+head(d_worker)
+dim(d_worker)
+
+```
+
+To join two dataframes, we will perform an **outer join** using the `tidyverse` functions `left_join()`, `right_join()` and `full_join()`. All these functions have the same inputs:
+
+-   `x`: dataframe A you want to join
+
+-   `y`: dataframe B you want to join
+
+-   `by`: the name of a variable (or vector of multiple variables) that is the *same* in both `x` and `y` and will be used to match the **rows** in `y` to the **rows** in `x`
+
+🔔 **Question**: Looking at the variables in `d_pop` and `d_worker`, what variable should we supply to `by`?
+
+⚠️ **Warning**: To join on a variable the *values* of that variable need to be the same in both datasets. If joining on a string variable, like `stname`, this means that any differences in spelling *or case* will not be matched together. For example "D.C." would *not* match to "DC".
+
+We will start with `full_join()` - this will take dataset `x` and match it with all common rows in dataset `y` and keep *all* observations in `x` and `y`, even if they are not present in both datasets.
+
+```{r}
+# join d_pop and d_worker
+d_join_full <- full_join(x = d_pop,
+                    y = d_worker,
+                    by = "stname") # this is a string of the variable name
+
+head(d_join_full)
+dim(d_join_full)
+```
+
+🔔 **Question**: Why are there 51 rows in `d_join_full` even though there are 50 rows in `d_pop` and 49 rows in `d_worker`?
+
+Exploring `d_join_full`, we will see missing values in the columns and rows that are not common across both dataframes.
+
+```{r}
+View(d_join_full)
+```
+
+Here is a diagram of what we just did:
+
+![](images/join-02.jpg)
+
+💡 **Tip**: Before doing a join, always think through how many rows and columns we *expect* to be in our joined dataframe. If the dimensions are different to what we expect, this alerts us to the possibility that something about our `by` variables might be wrong.
+
+If we don't want all the observations from both `x` and `y`, but instead all the observations in `x` and all the observations in `y` that are common to `x`, we can use `left_join()`.
+
+🔔 **Question**: How many observations will `d_left_join` have?
+
+```{r}
+
+d_left_join <- left_join(x = d_pop, 
+                         y = d_worker,
+                         by = "stname")
+head(d_left_join)
+dim(d_left_join)
+```
+
+⚠️ **Warning**: We have demonstrated **outer** joins. There are also **inner** joins. These are different in that they only keep rows that are present in *both* data frames and drop any observations that are only in `x` or `y`. Inner joins are not advised because it is too easy to loose rows.
+
+## 🥊 Challenge 4: Combining joins and pivots
+
+You have two dataframes: `d_pop` contains the state adult population in 2023, and `d_educ` contains the number of people with a BA and the number with a PhD. Join the dataframes and pivot them to create a dataframe with four columns: state, population, number of BA holders, number of PhD holders. Then find the state with the smallest difference in the share of people with BAs and PhDs.
+
+⚠️ **Warning**: decide whether to use `join_full()`, `join_left()`, `join_right()` - will you get different results?
+
+**💡 Tip:** it doesn't matter what order you do the join and pivot in - both orders will get you two the same final dataframe.
+
+```{r}
+
+# state level data on population
+d_pop <- readRDS("../data/part2_data_join_1.rds")
+dim(d_pop)
+
+# state X education level data on population
+d_educ <- readRDS("../data/part2_data_join_3.rds")
+dim(d_pop)
+
+# YOUR CODE HERE
+
+# ANSWERS
+# OPTION #1 - pivot first 
+d_educ_wide <- d_educ %>%
+  pivot_wider(id_cols = stname,
+              values_from = educ_pop,
+              names_from = degree)
+dim(d_educ_wide)
+
+# perform left join - drops DC from d_educ_wide b/c we don't have state population on this
+d_educ_pop <- left_join(x = d_pop, y = d_educ_wide, by = 'stname') %>%
+  # estimate share with college and graduate degrees
+  mutate(share_college = bachelors/pop,
+         share_grad = graduate/pop,
+         # calculate difference in shares
+         difference = share_college-share_grad) %>%
+  # sort by smallest difference first 
+  arrange(difference)
+
+head(d_educ_pop)
+
+# OPTION #2 - join first 
+d_join <- left_join(x = d_pop, y = d_educ, by = "stname")
+dim(d_join)
+
+# notice that now pop is repeated for two rows b/c we joined 1 row in d_pop to 2 rows in d_educ for each state
+head(d_join)
+
+# pivot wider 
+d_join_wide <- d_join %>%
+  pivot_wider(id_cols = c(stname, pop),
+              values_from = educ_pop,
+              names_from = degree) %>%
+  # calculate share and difference
+  mutate(share_college = bachelors/pop,
+         share_grad = graduate/pop,
+         # calculate difference in shares
+         difference = share_college-share_grad) %>%
+  # sort by smallest difference first 
+  arrange(difference)
+
+head(d_join_wide)
+
+```
+
+\<Alt question: which state has the largest divergence from the state median?\>
 
 # Takeaways
 
@@ -389,8 +477,64 @@ Use `pivot_wider()` to reshape `d` into wider format that will help you answer t
 
 2.  the functions `pivot_longer()` and `pivot_wider()` are commonly used to **wrangle** data into tidy form
 
-3.  tidy data is a good starting framework for how to organize data but should not be used dogmatically - instead, always ask what is the most helfpul organization of data for your specific purpose
+3.  joining multiple dataframes can be done with `left_join()`, `right_join()`, and `full_join()`
+
+4.  tidy data is a good starting framework for how to organize data but should not be used dogmatically - instead, always ask what is the most helpful organization of data for your specific purpose
 
 ## Next steps...
 
-Wrangling data into different forms (longer or wider) is often a necessary step before creating plots and visualizations in R. You're now prepared to take DLab's [R Data Visualization](https://github.com/dlab-berkeley/R-Data-Visualization) to learn how to create plots using `ggplot()`.
+Wrangling data into different forms (longer or wider) and joining multiple dataframes is often a necessary step before creating plots and visualizations in R. You're now prepared to take DLab's [R Data Visualization](https://github.com/dlab-berkeley/R-Data-Visualization) to learn how to create plots using `ggplot()`.
+
+# Additional Material
+
+Here is an additional example of when you would use `pivot_longer()` to turn a messy data frame into a tidy one.
+
+## Lengthening Data: Data *and* variable names in the column names
+
+Lets look at one more example of messy data that could be tidied by using `pivot_longer()`.
+
+```{r}
+d_ex4 <- readRDS("../data/part2_data_wide_4.rds")
+head(d_ex4)
+
+```
+
+🔔 **Question**: Why is this dataset not tidy? What would a tidy version of this dataset look like? How many columns and how many rows will we have in the tidy version?
+
+In this example, the column headers contain contain the names of **two** variables (`pop` and `income`) and the values of another variable (`worker_type`, with values "essential", "nonessential" and "nonLF"). The code for pivoting this looks a bit different:
+
+```{r}
+d_tidy4 <- d_ex4 |>
+  # we want to pivot all columns *except* stname so we can use the - to unselect this one
+  pivot_longer(cols = -stname, 
+               names_to = c(".value", "worker_type"), 
+               names_sep = "_")
+
+```
+
+The `cols` argument is the same, where we tell R we want to lengthen all columns except `stname`.
+
+The next argument, `names_to`, looks different. Instead of supplying multiple column names, we use a what's called a sentinel: `".value"`. A sentinel is a marker in the code that indicates a special meaning in the code. Within `names_to`, it signals to the function that the part of the original column names corresponding to **`.value`** should be kept as column names in the tidy data.
+
+The `names_sep` argument tells R how to distinguish between the part of column headers that belong to `".value"` and the part that belong to `worker_type`.
+
+![](images/pivot_longer_5.jpg)
+
+## 🥊 Challenge Extra: pivot_longer() with .value
+
+Similar to `d_ex4`, the data `d_ex5` is in non-tidy form.
+
+```{r}
+d_ex5 <- readRDS("../data/part2_data_wide_5.rds")
+head(d_ex5)
+```
+
+Why is `d_ex5` not in tidy form? What would the tidy version look like? Use `pivot_longer()` to wrangle the data into a tidy dataframe with one row per state and worker type, and the variables `pop` and `college`. Use the code above that we used to create `d_tidy4` as a guide.
+
+```{r}
+
+d_tidy5 <- d_ex5 |>
+  # YOUR CODE HERE
+
+
+```

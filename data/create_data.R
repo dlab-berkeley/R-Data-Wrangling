@@ -11,10 +11,7 @@ setwd(here())
 
 # Raw data ----
 d_raw <- fread("./data/usa_00087.csv")
-
   # there are 3 million observations - probably want to limit this
-  # also want to add in gender and age 
-  # want earnings instead of family income so that the data are actually at the person level 
 
 head(d_raw)
 colnames(d_raw)
@@ -187,3 +184,36 @@ dt <- d_state %>%
               names_from = c(stname))
 
 saveRDS(dt, "./data/part2_data_wide_5.rds")
+
+## Joining ----
+
+# two state level with different pop counts 
+table(d$worker_type)
+d_state <- d %>%
+  group_by(stname) %>%
+  summarize(pop = sum(perwt),
+            essential_pop = sum(perwt*(worker_type=="essential")))
+
+# save first one minus DC
+d_state %>%
+  select(stname, pop) %>%
+  filter(stname != "District of Columbia") %>%
+  saveRDS("./data/part2_data_join_1.rds")
+
+# save second one minus Hawaii and Alaska
+d_state %>%
+  select(stname, essential_pop) %>%
+  filter(stname != "Hawaii" & stname != "Alaska") %>%
+  saveRDS("./data/part2_data_join_2.rds")
+
+# for the final challenge - data at state x educ level on pop
+d_educ <- d %>%
+  filter(education == "BA" | education == "graduate") %>%
+  group_by(stname, education) %>%
+  summarize(educ_pop = sum(perwt)) %>%
+  rename(degree = education) %>%
+  mutate(degree = ifelse(degree == "BA", "bachelors", "graduate"))
+
+saveRDS(d_educ, "./data/part2_data_join_3.rds")
+  
+
