@@ -2,6 +2,7 @@
 # Created: HA 10/27
 # Updated: HA 10/30
 #          HA 12/20/23 - comment out data not used
+#          HA 01/25/24 - create data for R visualizations too 
 
 # Set up ----
 rm(list = ls())
@@ -98,6 +99,12 @@ d_sample <- slice_sample(d_part1, n = 100000)
 # save
 saveRDS(d_sample, "./data/part1_data.rds")
 
+# also save a version for R Data Visualizations
+d_viz <- d_sample %>%
+  filter(!is.na(income)) %>%
+  filter(age >= 18 & age <= 75)
+
+saveRDS(d_viz, "../R-Data-Visualization-Pilot/data/ACS_age_income.rds")
 
 # Part 2 Data ----
 
@@ -206,14 +213,43 @@ d_state %>%
   filter(stname != "Hawaii" & stname != "Alaska") %>%
   saveRDS("./data/part2_data_join_2.rds")
 
-# for the final challenge - data at state x educ level on pop
-d_educ <- d %>%
-  filter(education == "BA" | education == "graduate") %>%
-  group_by(stname, education) %>%
-  summarize(educ_pop = sum(perwt)) %>%
-  rename(degree = education) %>%
-  mutate(degree = ifelse(degree == "BA", "bachelors", "graduate"))
+### final challenge ----
+d <- fread("./utils/usa_00089.csv")
+colnames(d) <- tolower(colnames(d))
 
-saveRDS(d_educ, "./data/part2_data_join_3.rds")
-  
+# put in state names
+fips <- fread("./utils/us-state-ansi-fips.csv") %>%
+  rename(statefip = st)
+d <- left_join(d, fips, by = 'statefip')
+
+# population by state
+d_pop <- d %>%
+  group_by(stname) %>%
+  summarize(pop = sum(hhwt))
+
+# pivot to be wide
+d_pop_wide <- d_pop %>%
+  pivot_wider(names_from = stname, 
+              values_from = pop) %>%
+  mutate(variable = "population", .before = "Alabama")
+
+saveRDS(d_pop_wide, "./data/part2_data_challenge_1.rds")
+
+# number of renters and average rent 
+summary(d$rent)
+d_rent <- d %>%
+  group_by(stname) %>%
+  summarize(renters = sum(hhwt*(ownershp == 2)),
+            avg_rent = weighted.mean(ifelse(ownershp == 2, rent, NA), w = hhwt, na.rm = T))
+
+# 
+# # for the final challenge - data at state x educ level on pop
+# d_educ <- d %>%
+#   filter(education == "BA" | education == "graduate") %>%
+#   group_by(stname, education) %>%
+#   summarize(educ_pop = sum(perwt)) %>%
+#   rename(degree = education) %>%
+#   mutate(degree = ifelse(degree == "BA", "bachelors", "graduate"))
+
+saveRDS(d_rent, "./data/part2_data_challenge_2.rds")  
 

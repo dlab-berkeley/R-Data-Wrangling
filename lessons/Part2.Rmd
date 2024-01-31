@@ -407,26 +407,22 @@ dim(d_left_join)
 
 ## 🥊 Challenge 4: Combining joins and pivots
 
-You have two dataframes: `d_pop` contains the state adult population in 2023, and `d_educ` contains the number of people with a BA and the number with a PhD. Join the dataframes and pivot them to create a dataframe with four columns: state, population, number of BA holders, number of PhD holders. Then find the state with the smallest difference in the share of people with BAs and PhDs.
+Is there a relationship between the share of renters in a state and the cost of rent? You have two dataframes: `d_pop` contains the state population in 2022, and `d_rent` contains the number of people who rent and the average rent in each state. Join the dataframes together to create a dataframe with four columns: state, population, number of renters, and average rent. Then calculate the share of people renting in each state. Is the state with the highest share of renters also the most expensive? Or the cheapest? What do you expect to see?
 
-⚠️ **Warning**: decide whether to use `join_full()`, `join_left()`, `join_right()` - will you get different results?
-
-**💡 Tip:** it doesn't matter what order you do the join and pivot in - both orders will get you two the same final dataframe.
+⚠️ **Warning**: `d_pop` is not in tidy form - you will first need to pivot this dataset before joining it to `d_rent`.
 
 ```{r}
 
-# state level data on population
-d_pop <- readRDS("../data/part2_data_join_1.rds")
+# state population
+d_pop <- readRDS("../data/part2_data_challenge_1.rds")
 dim(d_pop)
 
-# state X education level data on population
-d_educ <- readRDS("../data/part2_data_join_3.rds")
-dim(d_pop)
+# state level data on renting
+d_rent <- readRDS("../data/part2_data_challenge_2.rds")
+dim(d_rent)
 
 
 ```
-
-\<Alt question: which state has the largest divergence from the state median?\>
 
 # Takeaways
 

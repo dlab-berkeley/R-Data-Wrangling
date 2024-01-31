@@ -43,48 +43,32 @@ d |>
   mutate(coll_diff = college_nonessential-college_essential,
          coll_inc = income_nonessential-income_essential)
 
-## Challenge 4: join and pivot ----
+## Challenge 4: pivot and join ----
 
-# OPTION #1 - pivot first 
-d_educ_wide <- d_educ %>%
-  pivot_wider(id_cols = stname,
-              values_from = educ_pop,
-              names_from = degree)
-dim(d_educ_wide)
+# make d_pop tidy by pivotting
+d_pop_long <- d_pop %>%
+  pivot_longer(cols = -variable,
+               names_to = "stname", 
+               values_to = "pop")
 
-# perform left join - drops DC from d_educ_wide b/c we don't have state population on this
-d_educ_pop <- left_join(x = d_pop, y = d_educ_wide, by = 'stname') %>%
-  # estimate share with college and graduate degrees
-  mutate(share_college = bachelors/pop,
-         share_grad = graduate/pop,
-         # calculate difference in shares
-         difference = share_college-share_grad) %>%
-  # sort by smallest difference first 
-  arrange(difference)
+# check now has the same number of rows as d_rent
+dim(d_pop_long)
+dim(d_rent)
 
-head(d_educ_pop)
+# join together - left_join, right_join, and full_join should all be the same here
+d_new <- left_join(d_pop_long, d_rent, by = "stname")
 
-# OPTION #2 - join first 
-d_join <- left_join(x = d_pop, y = d_educ, by = "stname")
-dim(d_join)
+# check the join worked as expected
+head(d_new)
+dim(d_new)
 
-# notice that now pop is repeated for two rows b/c we joined 1 row in d_pop to 2 rows in d_educ for each state
-head(d_join)
+# calculate share of pop renting
+d_rent_share <- d_new %>%
+  mutate(rent_share = renters/pop) %>%
+  arrange(desc(rent_share))
 
-# pivot wider 
-d_join_wide <- d_join %>%
-  pivot_wider(id_cols = c(stname, pop),
-              values_from = educ_pop,
-              names_from = degree) %>%
-  # calculate share and difference
-  mutate(share_college = bachelors/pop,
-         share_grad = graduate/pop,
-         # calculate difference in shares
-         difference = share_college-share_grad) %>%
-  # sort by smallest difference first 
-  arrange(difference)
-
-head(d_join_wide)
+# look at the dataframe and sort by rent_share and avg_rent - do we see the same states at the top and bottom?
+View(d_rent_share)
 
 ## Extra challenge: pivot_longer() with .value ----
 d_tidy5 <- d_ex5 |>
