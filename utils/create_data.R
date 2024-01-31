@@ -3,6 +3,7 @@
 # Updated: HA 10/30
 #          HA 12/20/23 - comment out data not used
 #          HA 01/25/24 - create data for R visualizations too 
+#          HA 01/31/24 - create data for final challenge - uses new vars from ACS
 
 # Set up ----
 rm(list = ls())
@@ -11,6 +12,7 @@ p_load(tidyverse, data.table, here)
 setwd(here())
 
 # Raw data ----
+# WARNING: need to unzip first
 d_raw <- fread("./utils/usa_00087.csv")
   # there are 3 million observations - probably want to limit this
 
@@ -213,7 +215,8 @@ d_state %>%
   filter(stname != "Hawaii" & stname != "Alaska") %>%
   saveRDS("./data/part2_data_join_2.rds")
 
-### final challenge ----
+## Part 2 - Final challenge ----
+# WARNING: need to unzip first
 d <- fread("./utils/usa_00089.csv")
 colnames(d) <- tolower(colnames(d))
 
