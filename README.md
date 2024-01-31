@@ -1,8 +1,7 @@
 
 # D-Lab Data Wrangling Workshop
 
-[![DataHub](https://img.shields.io/badge/launch-datahub-blue)](DATAHUB_LINK_HERE)
-[![Binder](https://mybinder.org/badge_logo.svg)](BINDER_LINK_HERE)
+[![DataHub](https://img.shields.io/badge/launch-datahub-blue)](https://datahub.berkeley.edu/hub/user-redirect/git-pull?repo=https%3A%2F%2Fgithub.com%2Fdlab-berkeley%2FR-Data-Wrangling&urlpath=rstudio%2F&branch=main)
 [![License: CC BY
 4.0](https://img.shields.io/badge/License-CC_BY_4.0-lightgrey.svg)](https://creativecommons.org/licenses/by/4.0/)
 
@@ -83,7 +82,7 @@ these programs to your laptop, we *strongly* recommend using the UC
 Berkeley Datahub to run the materials for these lessons. You can access
 the DataHub by clicking the following button:
 
-[![DataHub](https://img.shields.io/badge/launch-datahub-blue)](DATAHUB_LINK_HERE)
+[![DataHub](https://img.shields.io/badge/launch-datahub-blue)](https://datahub.berkeley.edu/hub/user-redirect/git-pull?repo=https%3A%2F%2Fgithub.com%2Fdlab-berkeley%2FR-Data-Wrangling&urlpath=rstudio%2F&branch=main)
 
 The DataHub downloads this repository, along with any necessary
 packages, and allows you to run the materials in an RStudio instance on
@@ -93,13 +92,6 @@ DataHub, you can save your work and come back to it at any time. When
 you want to return to your saved work, just go straight to the [D-Lab
 DataHub](https://dlab.datahub.berkeley.edu), sign in, and you click on
 the `[Workshop-Name]` folder.
-
-If you don't have a Berkeley CalNet ID, you can still run these lessons
-in the cloud, by clicking this button:
-
-[![Binder](https://mybinder.org/badge_logo.svg)](BINDER_LINK_HERE)
-
-By using this button, however, you cannot save your work.
 
 # Additional Resources
 
