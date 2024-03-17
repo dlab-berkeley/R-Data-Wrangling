@@ -22,22 +22,9 @@ d |> select(contains("_"))
 d |> select(where(is.numeric))
 
 ## Challenge 3: Combining conditional statements in filter()
-
-# simplest answer 
 d_ss <- d |>
-  filter((sex == 1 & age >= 60 & state != "California") |
-           (sex == 2 & age >= 55 & state != "California") |
-           (age >= 50 & state == "California"))
-
-
-# shorthand, but less intuitive
-d_ss_v2 <- d |> 
-  filter(state != "California" & (sex == 1 & age >= 60 | sex == 2 & age >= 55) |
-           state == "California" & age >= 50)
-
-
-# check both methods get the same dataframe
-all.equal(d_ss, d_ss_v2)
+  filter((age >= 60 & state != "California") |
+           (age >= 55 & state == "California"))
 
 # check if we have the right age range
 summary(d_ss$age)

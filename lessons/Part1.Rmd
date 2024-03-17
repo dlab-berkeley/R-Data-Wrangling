@@ -35,6 +35,36 @@ Throughout this workshop series, we will use the following icons:
 
 🎬 **Demo**: Showing off something more advanced so you know what you can use R for in the future.
 
+## It's Okay Not to Know (IOKN2K)
+
+The D-Lab's motto is "it's okay not to know". That means that ALL questions are welcomed. No question is too dumb or too confused or too back-tracking.
+
+You can ask questions in multiple ways:
+
+-   Raise your hand and ask the question out-loud when the instructor calls on you.
+
+-   Put the question in the chat.
+
+-   Privately message a helper and they can reply in the chat and/or go into a breakout room.
+
+**💡 Tip:** You will get the most out of the workshop if you follow along live. If you feel like you're falling behind because you're stuck on something, please ask! Likely other people are stuck too.
+
+## Projects
+
+In R-Studio, files and data can be stored together in a working directory called a Project. Opening up a specific project directory allows us to all have the same relative file paths when opening data.
+
+On the top right of the R-Studio window, you should see a little blue box with a R in it followed by the words "R-Data-Wrangling". This means you are inside the R Data Wrangling project.
+
+If not, you can open the project:
+
+-   Click File --\> Open Project
+
+-   Navigate to where you downloaded the github materials
+
+-   Double click on the file R-Data-Wrangling.Rproj
+
+R-Studio will refresh and you will be inside the Project directory.
+
 ## Tidyverse
 
 Throughout this workshop we will use the `tidyverse` suite of packages, which contains multiple other packages helpful for data wrangling. If you haven't installed `tidyverse` in the past you can install it with the following code:
@@ -58,9 +88,11 @@ In Part 1, we will learn what "tidy" data is and how we can **transform** tidy d
 
 ## 🥊 Challenge 1: Exploring the data
 
-Use the `readRDS()` function to read in our dataframe for part 1 in "../data/part1_data.csv".
+Use the `readRDS()` function to read in our dataframe for part 1 in "../data/part1_data.rds".
 
-Use the functions `head()`, `glimpse()`, and `View()` to explore the data and find out what information it contains. What are the observations/units in the data? What are the variables?
+Use the functions `head()`, `glimpse()`, and `View()` to explore the data and find out what information it contains.
+
+**🔔 Question:** What are the observations/units in the data? What are the variables?
 
 ```{r}
 
@@ -69,8 +101,14 @@ d <- readRDS("..")
 
 # explore the data using head(), glimpse(), View()
 
+# what are the units?
+
+# what are the variables?
+
 
 ```
+
+## ACS Data
 
 Our data comes from the American Community Survey (ACS), an annual survey conducted by the Census. The ACS samples every 1 in 100 households and asks questions on people's jobs, income, food security, relationships etc. You can explore the data at IPUMS USA: <https://usa.ipums.org/usa/>. Social scientists typically refer to data about individual people as "micro" data.
 
@@ -132,6 +170,8 @@ The `select()` function allows us to select a subset of variables from our dataf
 
 **💡 Tip:** You do not need to put quotation marks around the variable names. This is a convenient feature of all `tidyverse` functions.
 
+Imagine you want to find out the number of people at each age that have a graduate degree. We only need a subset of our variables for that.
+
 ```{r}
 
 select(d, family_ID, person_num, educ, age)
@@ -156,7 +196,7 @@ d_educ <- d |>
 
 ```
 
-📝 **Poll R-Data 1-1:** The origial dataframe d has 100000 rows and 13 columns. How many rows and columns should be in `d_educ`?
+📝 **Poll R-Data 1-1:** The original dataframe d has 100000 rows and 13 columns. How many rows and columns should be in `d_educ`?
 
 ```{r}
 
@@ -224,6 +264,8 @@ We can filter rows based on many different types of logical conditions:
 | is.na  | is NA (missing)          |
 | !is.na | is not NA                |
 
+Say we want to do some region-based analyses. We can filter our dataset to only be people who live in certain parts of the country. 
+
 ```{r}
 
 # return all people that live on the west coast 
@@ -241,7 +283,11 @@ d_not_westcoast <- d |>
 **🔔 Question:** How can we check if we have got the right rows in each of our new dataframes?
 
 ```{r}
+# use table() to look at the count of states - do we have the right ones?
+# your code here
 
+# use unique() to look at the values in the variable state - do we have the right ones?
+# your code here
 
 
 
@@ -270,17 +316,15 @@ d |>
 
 ## 🥊 Challenge 3: Combining conditional statements in filter()
 
-We want a dataframe containing people who are eligible for social security. Let's say that men are eligible age 60 and women (`sex == 2`) are eligible age 55. However, California recently implemented a new policy that says you're eligible for social security at age 50, regardless of gender.
+We want a dataframe containing people who are eligible for social security. Let's say that people are eligible for social security if they're 60 or over, but in California you're eligible if you're 55 or over. 
 
 Use `filter()` with the `&` and `|` to create a dataframe of people eligible for social security based on these conditions:
 
--   Women aged 55 or over who are not in California *or*
+-   People aged 60 or over who are not in California *or*
 
--   Men aged 60 or over who are not in California *or*
+-   People aged 55 or over who *is* in California
 
--   Anyone aged 50 or over who *is* in California
-
-**💡 Tip:** You can use parenthesis to separate out multiple conditions. There are multiple ways to do this.
+**💡 Tip:** You can use parenthesis to separate out multiple conditions. Think carefully about when you want `&` and when you want `|`.
 
 ```{r}
 
@@ -289,7 +333,7 @@ Use `filter()` with the `&` and `|` to create a dataframe of people eligible for
 
 ```
 
-**🔔 Question:** what are some ways we could check that we have filtered down to the correct observations?
+**🔔 Question:** what are some ways we could check that we have filtered down to the correct observations? Hint: `summary()` is a useful function for checking the range of values of a continous variable like age. 
 
 ```{r}
 
@@ -341,7 +385,9 @@ table(d$worker_type)
 
 ```
 
-If we plotted the relationship between age and income by worker type, R assumes that worker type is a numeric variable that could take on any number. The legend on this plot doesn't make sense.
+🔔 **Question**: Next we will look at the relationship between age and income by worker type. Which worker type do you expect to have the highest income? What about the lowest? Do you think the relationship between age and income will look different for different worker types? 
+
+Let's plot the relationship between age and income by worker type to see if our intuition was correct.
 
 ```{r}
 
@@ -352,6 +398,8 @@ d |>
   theme_bw()
   
 ```
+
+R assumes that worker type is a numeric variable that could take on any number. The legend on this plot doesn't make sense.
 
 We can instead convert `worker_type` to a factor, letting R know that it is a categorical variable with only three values.
 
@@ -401,7 +449,7 @@ We can use the `factor()` command to store this information as part of our varia
 
 # create a factor with labels 
 d_factor <- d |>
-  mutate(worker_cat = factor(worker_type, labels = c("not in LF", "essential", "non-essential")))
+  mutate(worker_cat = factor(worker_type, labels = c("not in labor force", "essential", "non-essential")))
 
 # look at the values for the variable
 table(d_factor$worker_cat)
@@ -510,7 +558,7 @@ The code above returned `NA` for the minimum, maximum, and average values of inc
 
 Once you've figured out why this has happened, try to fix it. You can do so by looking at the help page for the functions (`?mean`, `?min`, `?max`), or use Google or ChatGPT.
 
-**💡 Tip:** Use Google and/or chatGPT to solve coding problems are a frequent and necessary part of writing code.
+**💡 Tip:** Using Google and/or chatGPT to solve coding problems are a frequent and necessary part of writing code.
 
 ```{r}
 # YOUR CORRECTED CODE HERE
@@ -527,6 +575,8 @@ For example, what if we want to which type of worker (`worker_type`) has the hig
 ```{r}
 
 d |>
+  # make worker type a factor so we can more easily see what it is 
+  mutate(worker_type = factor(worker_type, labels = c("not in labor force", "essential", "non-essential"))) |>
   # group by type of worker
   group_by(worker_type) |>
   # calculate the share of people with BAs or graduate degrees - this involves a conditional inside mutate
@@ -541,6 +591,8 @@ To sort in descending order, we use the function `desc()` inside `arrange()`.
 ```{r}
 
 d |>
+  # make type of worker a factor
+  mutate(worker_type = factor(worker_type, labels = c("not in labor force", "essential", "non-essential"))) |>
   # group by type of worker
   group_by(worker_type) |>
   # calculate the share of people with BAs or graduate degrees 
@@ -550,26 +602,7 @@ d |>
 
 ```
 
-## 🥊 Challenge 6: Putting it all together
-
-This challenge to combines the functions we have learned throughout Part 1. Starting with our original tidy data, produce a summary statistics table by state for working adults. Starting with `d`, limit to adults (`age`) and those who are working (`empployment_status`). For each state calculate:
-
--   average income (`income`) - look out for missing values
-
--   the share of people with a college degree or higher (`educ`)
-
--   the share of people who are essential workers (`worker_type`) - look out for the variable codes
-
-Sort your final dataframe by the share of people who are essential workers. How many rows should you have?
-
-**🤖 chatGPT:** You can ask google or chatGPT for help at anytime. If you do, think how you would explain the code it gives you to all of us.
-
-```{r}
-
-# YOUR CODE HERE
-
-
-```
+🔔 **Question**: Did you expect this ordering? 
 
 # Takeaways
 
@@ -582,3 +615,30 @@ Sort your final dataframe by the share of people who are essential workers. How 
 ## Next steps...
 
 Transforming data using functions from `tidyverse` are often necessary before performing statistical analyses, such as training machine learning models. You're now prepared to take DLab's [R Machine Learning](https://github.com/dlab-berkeley/r-machine-learning-pilot) to learn how to do machine learning using `tidymodels`.
+
+## 🥊 Extra Challenge: Putting it all together
+
+This challenge combines the functions we have learned throughout Part 1. Starting with our original tidy data, produce a summary statistics table by state for working adults. Starting with `d`, limit to adults (`age`) and those who are working (`empployment_status`). For each state calculate:
+
+-   average income (`income`) - look out for missing values
+
+-   the share of people with a college degree or higher (`educ`)
+
+-   the share of people who are essential workers (`worker_type`) - it might be more readable to make this a factor, the codes are below:
+
+-   1 = not in the labor force
+
+-   2 = essential worker
+
+-   3 = non-essential worker
+
+Sort your final dataframe by the share of people who are essential workers. How many rows should you have?
+
+💡 **Tip**: All of the code to do this can be found above in different sections.
+
+```{r}
+
+# YOUR CODE HERE
+
+
+```
