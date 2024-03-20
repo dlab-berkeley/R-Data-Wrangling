@@ -35,9 +35,9 @@ Throughout this workshop series, we will use the following icons:
 
 In Part 1, we focused on learning objective #1: transforming our data to answer questions about the data. We used multiple functions from the `tidyverse` package such as `group_by()`, `mutate()`, and `summarize()`.
 
-💡 **Tip**: Refer back to the Part 1 notebook to see examples of these functions.
+Let's read in a data set that is created from the micro-data we worked with in Part 1. This data set contains information for each state (`stname`) and type of worker (`worker_type`).
 
-Let's read in the data that we created at the end of Part 1. We aggregated person level data from the American Community Survey to the state and worker type level. For each state (`stname`) and type of worker (`worker_type`) we have the number of people (`pop`), the average income (`income`), and the share with a college degree (`college`).
+The three variables for each state and worker type are the number of people (`pop`), the average income (`income`) and the average age (`age`).
 
 ```{r}
 # load in tidyverse
@@ -45,19 +45,36 @@ library(tidyverse)
 
 d <- readRDS("../data/part2_data.rds")
 head(d)
-
 ```
 
 📝 **Poll** **R-Data 2-1:** What makes this data tidy? Answer in the poll by selecting all statements that apply.
 
 ## 🥊 Challenge 1: Using `tidyverse` functions on tidy data
 
-Which state has the largest share of essential workers (`worker_type` == "essential")? Use the following functions we learned in Part 1: `group_by()`, `mutate()`, `filter()` and `arrange()`.
+Which state has the largest share of essential workers (`worker_type` == "essential")?
 
-💡 **Tip**: Before starting to code, write down what additional variable(s) you will need to create and how you will create them.
+Use the following functions we learned in Part 1: `group_by()`, `mutate()`, `filter()` and `arrange()`. Replace the `. . .` in the code below with your own code.
+
+💡 **Tip**: Refer back to the Part 1 notebook to see examples of these functions.
 
 ```{r}
 
+# first, calculate the population for the whole state 
+d_ch1 <- d |>
+  group_by(...) |>
+  mutate(state_pop = ...) 
+
+# second, limit the data set to just be essential workers
+d_ch1_ess <- d_ch1 |>
+  filter(...)
+
+# third, calculate the share of the total population (state_pop) that is essential workers
+d_c1_ess_shr <- d_ch1_ess |>
+  mutate(...)
+
+# fourth, sort the dataframe to show the state with the largest share first 
+d_ch1_ess_shr |>
+  arrange(...)
 
 
 ```
@@ -66,7 +83,7 @@ Which state has the largest share of essential workers (`worker_type` == "essent
 
 Having our data in tidy form made it possible to answer the question above about share of workers because we could apply to functions `mutate()` and `group_by()` without changing anything about our data.
 
-But data often comes to us in different formats. This could be because it has been gathered in a specific way or because it is more readable to present it in non-tidy form. For example, here is the same data but presented differently.
+But data often comes to us in different formats. This could be because it has been gathered in a specific way or because it is more readable to present it in non-tidy form. For example, here is the **same** data but presented differently.
 
 ```{r}
 d_ex1 <- readRDS("../data/part2_data_wide_1.rds")
@@ -75,11 +92,7 @@ head(d_ex1)
 
 🔔 **Question**: What is different about this dataset? Is there one row per observation and one column per variable? If not, how would you describe it?
 
-Having data in non-tidy form makes analysis and data visualization harder. Lets say we want to ask the same question, which state has the largest share of essential workers? First, we need to calculate the total state population.
-
-🔔 **Question**: Can you think of a way to use the `tidyverse` functions to get the total state population? If not, can you explain in words what you would try to do to get the state population?
-
-Asking questions of our data becomes tricky when the data is not in tidy form. In this part of the workshop, we will learn different functions for transforming our data into tidy form.
+Having data in non-tidy form makes analysis and data visualization harder. In this part of the workshop, we will learn different functions for transforming our data into tidy form.
 
 ## 🎬 Demo: Wrangling messy data
 
@@ -143,21 +156,17 @@ Two common tools for tidying data are **lengthening** and **widening** data. Tog
 
 **⚠️ Warning:** Throughout the examples we will refer to the messy dataframe we start with as the **original** data and the tidy dataframe we are getting to as the **reshaped** data. This is to be consistent with the language you will see in help files or online.
 
-## Data in column names
-
 ```{r}
 head(d_ex1)
 ```
 
 Looking at our original dataset, we can be more specific about the problems:
 
--   the column **names** are one variable: `state`
+-   the column **names** are variable values (`state`) but we want them to be variable names
 
--   the column **values** are another variable: `population`
+-   the column **values** are another variable (`population`) but the variable isn't named anywhere
 
 Goal: make each of the two variables (`state` and `population`) there own columns.
-
-💡 **Tip**: We've answered the first two questions. At this point, it is helpful to sketch out what your reshaped data will look like with each of the column names.
 
 We will now create the reshaped dataframe by using the function `pivot_longer()`. We can generally think of `pivot_longer()` as taking multiple columns in our original dataset and condensing or "gathering" them into two new columns: one containing the **names** of the original columns and one containing the **values** of the original columns. `pivot_longer()` has three arguments that are most commonly used:
 
@@ -165,7 +174,21 @@ We will now create the reshaped dataframe by using the function `pivot_longer()`
 2.  `names_to`: the name of the **new** column that will have the column **names** of the columns in `cols`
 3.  `values_to`: the name of the **new** column that will have the column **values** of the columns in `cols`
 
-📝 **Poll** **R-Data 2-2:** Looking at our dataset `d_ex1`, which columns should we provide to the `cols` argument inside `pivot_longer()`? Answer in the poll.
+Lets walk through what we're going to do.
+
+The column **names** from our original dataframe become the **values** of a new column created by the `names_to` argument that we call "state".
+
+![](images/pivot_longer_2.jpg)
+
+The column **values** from our original dataframe become the **values** of a new column created by the `values_to` argument that we call "pop".
+
+![](images/pivot_longer_3.jpg)
+
+In the `cols` argument we specify all columns except `worker_type`, because we want this to stay as is.
+
+![](images/pivot_longer_1-03.jpg)
+
+Here is the code that does all that at once.
 
 ```{r}
 
@@ -177,18 +200,6 @@ d_tidy1 <- d_ex1 |>
 head(d_tidy1, n = 20)
 
 ```
-
-Lets walk through what just happened. We kept the `worker_type` column because this wasn't included in the `cols` argument.
-
-![](images/pivot_longer_1-03.jpg)
-
-The column **names** from our original dataframe became the **values** of a new column created by the `names_to` argument that we called "state".
-
-![](images/pivot_longer_2.jpg)
-
-The column **values** from our original dataframe became the **values** of a new column created by the `values_to` argument that we called "pop".
-
-![](images/pivot_longer_3.jpg)
 
 💡 **Tip**: A good way to check if `pivot_longer()` has worked the way we wanted it to is to compare the number of rows in the original dataframe to the number of rows in the reshaped dataframe.
 
@@ -225,46 +236,6 @@ d_tidy2 <- d_ex2 |>
   # YOUR CODE HERE
 
 ```
-
-## Multiple types of data in column names
-
-In the first two examples, the original dateframes had column names that contained **values** from a variable (state names in one and different types of workers in the other). In the next example, our column names contain **values** from *multiple* variables.
-
-```{r}
-
-d_ex3 <- readRDS("../data/part2_data_wide_3.rds")
-head(d_ex3)
-
-```
-
-📝 **Poll R-Data 2-3**: Which statements explain why `d_ex3` isn't in tidy form? Select all that apply in the poll.
-
-🔔 **Question**: What should the tidy version of this look like? What are each of the variables?
-
-Having answered questions 1 and 2, we now address question 3: what function will wrangle the data into tidy form? Because we are adding rows and removing columns, we will use `pivot_longer()`.
-
-In the example above, we wanted to gather our columns into **two** new variables: one for the column names and one for the column values. Now that the column names contained values from multiple variables, we want to create **three** new variables: **two** for the column names (`worker_type` and `education`) and one for the column values (`pop`).
-
-```{r}
-
-# pipe the data into pivot_longer()
-d_tidy3 <- d_ex3 |>
-  # we want to pivot all columns *except* stname so we can use the - to unselect this one
-  pivot_longer(cols = -stname, 
-               # these are the new variables that we create from the old column names
-               names_to = c("worker_type", "education"), 
-               # b/c there are multiple variables in the column names, we need to tell R how to distinguish between them
-               names_sep = "_", 
-               # this is the new variable that will store the cell values
-               values_to = "pop") 
-
-```
-
-The column **names** from our original dataframe became the **values** of a **two** new column created by the `names_to` argument that we called "worker_type" and "education".
-
-![](images/pivot_longer_4.jpg)
-
-🔔 **Question**: How did R know which part of the column names from the original dataframe to put in the `worker_type` variable and which part to put in the `education` variable?
 
 # Break Time ☕
 
@@ -315,11 +286,12 @@ d_wide |>
 
 ## 🥊 Challenge 3: pivot_wider()
 
-Which state has the largest difference between non-essential and essential workers in the share of people with college degrees? Which state as the smallest?
+What is the difference in average age between essential and non-essential workers? Which state has the largest difference? Do you think this goes part way to explaining income differences?
 
-How does this compare to the ranking of states based on income difference between non-essential and essential workers?
+Use `pivot_wider()` to reshape `d` into wider format that will help you answer this question. Then use `mutate()` to calculate the difference in age between non-essential and essential workers.
 
-Use `pivot_wider()` to reshape `d` into wider format that will help you answer this question. Then use functions from tidyverse to calculate the difference in college share between non-essential and essential workers.
+Hint: this is the same as we just did above for the difference in `income` but instead it is for the difference in `age`.
+
 
 ```{r}
  
@@ -328,11 +300,17 @@ Use `pivot_wider()` to reshape `d` into wider format that will help you answer t
 
 ```
 
-**🥊 Additional Challenge:** how can you adapt the code for pivot_wider() so that you can have in one dataframe both the income difference and the share with a college degree difference between essential and non-essential workers?
+## 🎬 **Demo**: pivot_wider() with multiple variables
+Say we wanted to have both the difference in income and the difference in age between essential and non-essential workers in the same data frame. We could adapt the code above to do that by supplying two variables to the `values_from` argument. 
 
 ```{r}
+d |>
+  pivot_wider(id_cols = stname,
+              names_from = worker_type,
+              values_from = c(age, income)) |>
+  mutate(age_diff = age_nonessential-age_essential,
+         inc_diff = income_nonessential-income_essential)
 
-# YOUR CODE HERE
 ```
 
 # Multiple Data Frames
@@ -360,6 +338,10 @@ To join two dataframes, we will perform an **outer join** using the `tidyverse` 
 
 -   `by`: the name of a variable (or vector of multiple variables) that is the *same* in both `x` and `y` and will be used to match the **rows** in `y` to the **rows** in `x`
 
+Here is a diagram of what we want to do:
+
+![](images/join.jpg)
+
 🔔 **Question**: Looking at the variables in `d_pop` and `d_worker`, what variable should we supply to `by`?
 
 ⚠️ **Warning**: To join on a variable the *values* of that variable need to be the same in both datasets. If joining on a string variable, like `stname`, this means that any differences in spelling *or case* will not be matched together. For example "D.C." would *not* match to "DC".
@@ -384,10 +366,6 @@ Exploring `d_join_full`, we will see missing values in the columns and rows that
 View(d_join_full)
 ```
 
-Here is a diagram of what we just did:
-
-![](images/join-02.jpg)
-
 💡 **Tip**: Before doing a join, always think through how many rows and columns we *expect* to be in our joined dataframe. If the dimensions are different to what we expect, this alerts us to the possibility that something about our `by` variables might be wrong.
 
 If we don't want all the observations from both `x` and `y`, but instead all the observations in `x` and all the observations in `y` that are common to `x`, we can use `left_join()`.
@@ -407,7 +385,11 @@ dim(d_left_join)
 
 ## 🥊 Challenge 4: Combining joins and pivots
 
-Is there a relationship between the share of renters in a state and the cost of rent? You have two dataframes: `d_pop` contains the state population in 2022, and `d_rent` contains the number of people who rent and the average rent in each state. Join the dataframes together to create a dataframe with four columns: state, population, number of renters, and average rent. Then calculate the share of people renting in each state. Is the state with the highest share of renters also the most expensive? Or the cheapest? What do you expect to see?
+Is there a relationship between the share of renters in a state and the cost of rent?
+
+You have two dataframes: `d_pop` contains the state population in 2022, and `d_rent` contains the number of people who rent and the average rent in each state.
+
+Join the dataframes together to create a dataframe with four columns: state, population, number of renters, and average rent. Then calculate the share of people renting in each state. Is the state with the highest share of renters also the most expensive? Or the cheapest? What do you expect to see?
 
 ⚠️ **Warning**: `d_pop` is not in tidy form - you will first need to pivot this dataset before joining it to `d_rent`.
 
@@ -440,9 +422,47 @@ Wrangling data into different forms (longer or wider) and joining multiple dataf
 
 # Additional Material
 
-Here is an additional example of when you would use `pivot_longer()` to turn a messy data frame into a tidy one.
+Here are two additional example of when you would use `pivot_longer()` to turn a messy data frame into a tidy one. The final challenge practices lengthening data.
 
-## Lengthening Data: Data *and* variable names in the column names
+## Multiple types of data in column names
+
+In this example of messy data, our column names contain **values** from *multiple* variables.
+
+```{r}
+
+d_ex3 <- readRDS("../data/part2_data_wide_3.rds")
+head(d_ex3)
+
+```
+
+🔔 **Question**: What should the tidy version of this look like? What are each of the variables?
+
+Having answered questions 1 and 2, we now address question 3: what function will wrangle the data into tidy form? Because we are adding rows and removing columns, we will use `pivot_longer()`.
+
+Because the column names contained values from multiple variables, we want to create **three** new variables: **two** for the column names (`worker_type` and `education`) and one for the column values (`pop`).
+
+```{r}
+
+# pipe the data into pivot_longer()
+d_tidy3 <- d_ex3 |>
+  # we want to pivot all columns *except* stname so we can use the - to unselect this one
+  pivot_longer(cols = -stname, 
+               # these are the new variables that we create from the old column names
+               names_to = c("worker_type", "education"), 
+               # b/c there are multiple variables in the column names, we need to tell R how to distinguish between them
+               names_sep = "_", 
+               # this is the new variable that will store the cell values
+               values_to = "pop") 
+
+```
+
+The column **names** from our original dataframe became the **values** of a **two** new column created by the `names_to` argument that we called "worker_type" and "education".
+
+![](images/pivot_longer_4.jpg)
+
+🔔 **Question**: How did R know which part of the column names from the original dataframe to put in the `worker_type` variable and which part to put in the `education` variable?
+
+## Data *and* variable names in the column names
 
 Lets look at one more example of messy data that could be tidied by using `pivot_longer()`.
 

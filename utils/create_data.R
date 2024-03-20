@@ -129,8 +129,8 @@ d[ , college := ifelse(educ>=10, 1,0)]
 # create state x occupation level data
 d_state <- d[ , .(pop = sum(perwt),
        income = weighted.mean(inctot, w = perwt, na.rm = T),
-       #avg_age = weighted.mean(age, w = perwt),
-       college = weighted.mean(college, w = perwt)),
+       age = round(weighted.mean(age, w = perwt),0)),
+       #college = weighted.mean(college, w = perwt)),
    by = c("stname", "statefip", "worker_type")] %>%
   arrange(stname, worker_type)
 

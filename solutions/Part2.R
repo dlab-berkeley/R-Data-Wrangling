@@ -31,17 +31,9 @@ d_tidy2 <- d_ex2 |>
 d |>
   pivot_wider(id_cols = stname,
               names_from = worker_type,
-              values_from = college) |>
+              values_from = age) |>
   mutate(difference = nonessential-essential) |>
   arrange(desc(difference))
-
-### Additional challenge ----
-d |>
-  pivot_wider(id_cols = stname,
-              names_from = worker_type,
-              values_from = c(college, income)) |>
-  mutate(coll_diff = college_nonessential-college_essential,
-         coll_inc = income_nonessential-income_essential)
 
 ## Challenge 4: pivot and join ----
 
