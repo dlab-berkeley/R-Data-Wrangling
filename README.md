@@ -6,9 +6,14 @@
 4.0](https://img.shields.io/badge/License-CC_BY_4.0-lightgrey.svg)](https://creativecommons.org/licenses/by/4.0/)
 
 This repository contains the materials for D-Lab's Data Wrangling
-workshop. We recommend attending D-Lab's [R
+workshop. 
+
+### Prerequisites
+We recommend attending D-Lab's [R
 Fundamentals](https://github.com/dlab-berkeley/R-Fundamentals) series
 prior to this workshop.
+
+Check D-Lab's [Learning Pathways](https://dlab-berkeley.github.io/dlab-workshops/python_path.html) to figure out which of our workshops to take!
 
 ## Workshop Goals
 
