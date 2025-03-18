@@ -6,7 +6,7 @@ d |>
   mutate(state_pop = sum(pop),
          pct_worker_type = pop/state_pop) |>
   filter(worker_type == "essential") |>
-  arrange(pct_worker_type)
+  arrange(desc(pct_worker_type))
 
 ## Challenge 2: pivot_longer() ----
 
