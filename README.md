@@ -8,7 +8,7 @@
 This repository contains the materials for D-Lab's Data Wrangling
 workshop. 
 
-### Prerequisites
+## Prerequisites
 We recommend attending D-Lab's [R
 Fundamentals](https://github.com/dlab-berkeley/R-Fundamentals) series
 prior to this workshop.
