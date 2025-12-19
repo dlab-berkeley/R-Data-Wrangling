@@ -1,12 +1,11 @@
 
-# D-Lab Data Wrangling Workshop
+# D-Lab Data Wrangling With Tidyverse Workshop
 
 [![DataHub](https://img.shields.io/badge/launch-datahub-blue)](https://datahub.berkeley.edu/hub/user-redirect/git-pull?repo=https%3A%2F%2Fgithub.com%2Fdlab-berkeley%2FR-Data-Wrangling&urlpath=rstudio%2F&branch=main)
 [![License: CC BY
 4.0](https://img.shields.io/badge/License-CC_BY_4.0-lightgrey.svg)](https://creativecommons.org/licenses/by/4.0/)
 
-This repository contains the materials for D-Lab's Data Wrangling
-workshop. 
+This repository contains the materials for D-Lab's Data Wrangling With Tidyverse workshop. 
 
 ## Prerequisites
 We recommend attending D-Lab's [R
