@@ -333,7 +333,7 @@ Use `filter()` with the `&` and `|` to create a dataframe of people eligible for
 
 ```
 
-**🔔 Question:** what are some ways we could check that we have filtered down to the correct observations? Hint: `summary()` is a useful function for checking the range of values of a continous variable like age. 
+**🔔 Question:** what are some ways we could check that we have filtered down to the correct observations? Hint: `summary()` is a useful function for checking the range of values of a continuous variable like age. 
 
 ```{r}
 
